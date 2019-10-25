@@ -7,7 +7,7 @@ Simple deep neural network using C89, feed-forward only(for now)
 ## LeNet
 [LeNet-5, convolutional neural networks](http://yann.lecun.com/exdb/lenet/)
 经典的卷积神经网络模型，用于手写字体识别任务。我们训练好了模型，保存在 `~/lenet-parameters/` 你可以直接使用。
-使用 [c89net-tf-model](http://404.404/) 训练你自己的数据，编辑 `~/lenet.c` 修改模型。
+目前可以使用 [c89net-tf-model](https://github.com/evidence0john/c89net-tf-model) 训练你自己的数据，编辑 `~/lenet.c` 修改模型。
 
 ## 注意事项
 
@@ -15,6 +15,6 @@ Simple deep neural network using C89, feed-forward only(for now)
 
 *特别注意 2，目前尚未制定标准的模型数据格式，目前直接使用 **little-endian** 的单精度浮点数 float32 内存 dump 数据提供模型参数*
 
-*特别注意 3，除非我说可以了，否则任何你在这个项目里看到的代码都可能是我没睡醒时摸的... *
+*特别注意 3，除非我说可以了，否则任何你在这个项目里看到的代码都可能是我没睡醒时摸的*
 
 *特别注意 4，这个项目大概率 **不会** 咕咕咕*
