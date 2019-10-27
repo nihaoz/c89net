@@ -26,6 +26,7 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 		free_data_layer(inp_pad);
 		return NULL;
 	}
+	oup->datatype = inp->datatype;
 	oup->xsize = _conv_2d_size_calc(inp->xsize, kernel->xsize, s, p);
 	oup->ysize = _conv_2d_size_calc(inp->ysize, kernel->ysize, s, p);
 	oup->zsize = kernel->wsize;

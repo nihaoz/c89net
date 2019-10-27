@@ -5,10 +5,10 @@ OMP   = -DENABLE_OPENMP -fopenmp
 LINK  = -lm
 INC   = -I ./src/
 
-CFLAG = -O2 -std=c89 -DCONFIG_STD_C89 $(OMP)
+CFLAG = -std=c89 -DCONFIG_STD_C89 $(OMP)
 
-obj   = list.o image_util.o image_bmp.o data_util.o conv2d.o spatial_conv.o \
-	activation.o data_layer.o pad.o pool.o debug_log.o
+obj   = list.o image_util.o image_bmp.o data_util.o data_types.o conv2d.o \
+		spatial_conv.o activation.o data_layer.o pad.o pool.o debug_log.o
 
 DEMO  = matmul_test
 CNN   = lenet
@@ -32,6 +32,8 @@ image_util.o: src/image_util.h src/image_util.c
 	$(cc) -c src/image_util.c $(INC) $(CFLAG)
 image_bmp.o: src/image_bmp.h src/image_bmp.c
 	$(cc) -c src/image_bmp.c $(INC) $(CFLAG)
+data_types.o: src/data_types.h src/data_types.c
+	$(cc) -c src/data_types.c $(INC) $(CFLAG)
 data_util.o: src/data_util.h src/data_util.c
 	$(cc) -c src/data_util.c $(INC) $(CFLAG)
 conv2d.o: src/conv2d.h src/conv2d.c

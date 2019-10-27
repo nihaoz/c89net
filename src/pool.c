@@ -14,6 +14,7 @@ data_layer *max_pool2_2(data_layer *l)
 	data_layer *pool = (data_layer*)malloc(sizeof(data_layer));
 	if (!pool)
 		return NULL;
+	pool->datatype = l->datatype;
 	pool->xsize = l->xsize >> 1;
 	pool->ysize = l->ysize >> 1;
 	pool->zsize = l->zsize;

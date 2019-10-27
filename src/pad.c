@@ -13,6 +13,7 @@ data_layer *pad_surround(data_layer *l, int p, const char *name)
 	data_layer *pad = (data_layer*)malloc(sizeof(data_layer));
 	if (!pad)
 		return NULL;
+	pad->datatype = l->datatype;
 	pad->xsize = l->xsize + p + p;
 	pad->ysize = l->ysize + p + p;
 	pad->zsize = l->zsize;

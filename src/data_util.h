@@ -14,19 +14,18 @@
 #define ELEM_FORMAT_DEC 0
 #define ELEM_FORMAT_HEX 1
 
-typedef float  float32;
-typedef double float64;
-
 #include <stdio.h>
 
+#include "data_types.h"
 #include "image_util.h"
 
 typedef struct
 {
 	float32 *data;
+	int datatype;
 	int xsize;
 	int ysize;
-} channel_float32;
+} channel_t;
 
 /* Single channel, [0, 1] */
 #define GRAY_TO_CHANNEL_MNIST  0
@@ -36,28 +35,34 @@ typedef struct
 #define CHANNEL_NORM_NEW  0
 #define CHANNEL_NORM_SELF 1
 
-channel_float32 *new_channel_float32(int x, int y);
+/*
+ * Args
+ * dt   : datatype
+ * x, y : channel shape
+ */
+channel_t *new_channel(int dt, int x, int y);
+channel_t *new_channel_float32(int x, int y);
 
-channel_float32 *channel_norm(channel_float32 *ch, float32 l, float32 r, int f);
+channel_t *channel_norm_float32(channel_t *ch, float32 l, float32 r, int f);
 
-channel_float32 *clone_channel_float32(channel_float32 *ch);
+channel_t *clone_channel_float32(channel_t *ch);
 
 /* Convert a gray image into a 2-D float32 channel, pxls val form [0, 255] to [-1, 1]*/
-channel_float32 *gray_to_channel(gray_obj *gray, int mod);
+channel_t *gray_to_channel_float32(gray_obj *gray, int mod);
 
 /* Convert a normalized 2-D float32 channel to gray image */
-gray_obj *normalized_channel_to_gray(channel_float32 *ch);
+gray_obj *normalized_channel_float32_to_gray(channel_t *ch);
 
-channel_float32 *free_channel_float32(channel_float32 *ch);
+channel_t *free_channel(channel_t *ch);
 
-int channel_dump_to_text(channel_float32 *ch, const char* filename, int format);
+int channel_float32_dump_to_text(channel_t *ch, const char* filename, int format);
 
-void debug_fprint_ch_info(FILE *fp, channel_float32 *ch);
+void debug_fprint_ch_info(FILE *fp, channel_t *ch);
 
 /* dst = dst + src */
-int channel_add(channel_float32 *dst, channel_float32 *src);
+int channel_float32_add(channel_t *dst, channel_t *src);
 
-int channel_bias(channel_float32 *ch, float32 bias);
+int channel_float32_bias(channel_t *ch, float32 bias);
 
 #ifdef __cplusplus
 	}

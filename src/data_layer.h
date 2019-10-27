@@ -20,6 +20,7 @@
  */
 typedef struct {
 	list_t *data;
+	int datatype;
 	int xsize;
 	int ysize;
 	int zsize;
@@ -35,17 +36,20 @@ typedef struct {
 typedef struct {
 	list_t *data;
 	int type;
+	int datatype;
 	int xsize;
 	int ysize;
 	int zsize;
 	int wsize;
 } para_layer;
 
-data_layer *data_layer_by_channels(channel_float32 **chs, int n, const char *name);
+data_layer *data_layer_by_channels(channel_t **chs, int n, const char *name);
+
+data_layer *data_layer_serialized(int data_type, ...);
 
 data_layer *data_layer_clone(data_layer *l, const char *name);
 
-channel_float32 *copy_channel_form_layer(data_layer *l, int id);
+channel_t *copy_channel_form_layer(data_layer *l, int id);
 
 int data_layer_modify_shape(data_layer *l, int x, int y, int z);
 
@@ -71,7 +75,7 @@ para_layer *load_bias_form_binary(const char *filename, int ch_x, const char *na
 
 float32 *bias_data_from_layer(para_layer *l);
 
-channel_float32 *copy_kernel_form_layer(para_layer *l, int id);
+channel_t *copy_kernel_form_layer(para_layer *l, int id);
 
 void debug_fprint_data_layer_info(data_layer *l, FILE *fp);
 void debug_fprint_para_layer_info(para_layer *l, FILE *fp);

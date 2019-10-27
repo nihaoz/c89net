@@ -56,11 +56,11 @@ int main(int argc, char const *argv[])
 	img_rgb_split(img->data, INPUT_IMG_X * INPUT_IMG_Y,
 					img_gray->data, img_gray->data, img_gray->data);
 	img = img_free_rgb(img);
-	channel_float32 *ch_gray = gray_to_channel(img_gray, GRAY_TO_CHANNEL_MNIST);
+	channel_t *ch_gray = gray_to_channel_float32(img_gray, GRAY_TO_CHANNEL_MNIST);
 	img_gray = img_free_gray(img_gray);
 
 	/* Load input layer */
-	channel_float32 *chs[] = {ch_gray};
+	channel_t *chs[] = {ch_gray};
 	data_layer *inp = data_layer_by_channels(chs, 1, "input");
 
 	#ifdef RUN_DEBUG

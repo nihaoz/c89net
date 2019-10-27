@@ -4,24 +4,25 @@
 
 #include "data_layer.h"
 
-data_layer *data_layer_by_channels(channel_float32 **chs, int n, const char *name)
+data_layer *data_layer_by_channels(channel_t **chs, int n, const char *name)
 {
-	int i, ch_size = chs[0]->xsize * chs[0]->ysize;
 	data_layer *l = (data_layer*)malloc(sizeof(data_layer));
 	if (!l)
 		return NULL;
+	int i, ch_size = chs[0]->xsize * chs[0]->ysize;
+	l->datatype = chs[0]->datatype;
 	l->xsize = chs[0]->xsize;
 	l->ysize = chs[0]->ysize;
 	l->zsize = n;
-	l->data = list_new_static(n, sizeof(float32) * ch_size);
+	l->data = list_new_static(n, sizeof_datatype(l->datatype) * ch_size);
 	if (!l->data) {
 		free(l);
 		return NULL;
 	}
 	for (i = 0; i < n; ++i)
 	{
-		memcpy(l->data->mem + i * sizeof(float32) * ch_size,
-				chs[i]->data, sizeof(float32) * ch_size);
+		memcpy(l->data->mem + i * sizeof_datatype(l->datatype) * ch_size,
+				chs[i]->data,  sizeof_datatype(l->datatype) * ch_size);
 	}
 	list_set_name(l->data, name);
 	return l;
@@ -47,15 +48,12 @@ data_layer *data_layer_clone(data_layer *l, const char *name)
 	return clone;
 }
 
-channel_float32 *copy_channel_form_layer(data_layer *l, int id)
+channel_t *copy_channel_form_layer(data_layer *l, int id)
 {
-	channel_float32 *ch = new_channel_float32(l->xsize, l->ysize);
+	channel_t *ch = new_channel(l->datatype, l->xsize, l->ysize);
 	int i, k_flat = l->xsize * l->ysize;
-	float32 *p = (float32*)(list_get_record(l->data, id));
-	for (i = 0; i < k_flat; ++i)
-	{
-		ch->data[i] = *(p + i);
-	}
+	void *p = (void*)(list_get_record(l->data, id));
+	memcpy(ch->data, p, sizeof_datatype(l->datatype) * k_flat);
 	return ch;
 }
 
@@ -83,19 +81,20 @@ data_layer *data_layer_flat(data_layer *l)
 	flat->xsize = 1;
 	flat->ysize = 1;
 	flat->zsize = data_c;
-	flat->data  = list_new_static(data_c, sizeof(float32));
+	flat->data  = list_new_static(data_c, sizeof(sizeof_datatype(l->datatype)));
 	if (!flat->data) {
 		free(flat);
 		return NULL;
 	}
-	float32 *p_dst = (float32*)flat->data->mem;
-	float32 *p_src = (float32*)l->data->mem;
-	int i, j;
+	byte *p_dst = (byte*)flat->data->mem;
+	byte *p_src = (byte*)l->data->mem;
+	int i, j, unit_len = sizeof_datatype(l->datatype);
 	for (i = 0; i < l_size; ++i)
 	{
 		for (j = 0; j < l->zsize; ++j)
 		{
-			*(p_dst + i * l->zsize + j) = *(p_src + j * l_size + i);
+			memcpy((p_dst + (i * l->zsize + j) * unit_len),
+				(p_src + (j * l_size + i) * unit_len), unit_len);
 		}
 	}
 	return flat;
@@ -196,19 +195,16 @@ para_layer *load_conv2d_kernel_form_binary(const char *filename,
 	return l;
 }
 
-channel_float32 *copy_kernel_form_layer(para_layer *l, int id)
+channel_t *copy_kernel_form_layer(para_layer *l, int id)
 {
 	if (l->type != PARA_TYPE_KERNEL)
 		return NULL;
-	channel_float32 *ch = new_channel_float32(l->xsize, l->ysize);
+	channel_t *ch = new_channel(l->datatype, l->xsize, l->ysize);
 	if (!ch)
 		return NULL;
 	int i, k_flat = l->xsize * l->ysize;
-	float32 *p = (float32*)(list_get_record(l->data, k_flat * id));
-	for (i = 0; i < k_flat; ++i)
-	{
-		ch->data[i] = *(p + i);
-	}
+	void *p = (void*)(list_get_record(l->data, k_flat * id));
+	memcpy(ch->data, p, sizeof_datatype(l->datatype) * k_flat);
 	return ch;
 }
 
