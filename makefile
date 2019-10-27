@@ -10,8 +10,21 @@ CFLAG = -O2 -std=c89 -DCONFIG_STD_C89 $(OMP)
 obj   = list.o image_util.o image_bmp.o data_util.o conv2d.o spatial_conv.o \
 	activation.o data_layer.o pad.o pool.o debug_log.o
 
-lenet: lenet.c $(obj)
-	$(cc) -o lenet lenet.c $(obj) $(INC) $(CFLAG) $(LINK)
+DEMO  = matmul_test
+CNN   = lenet
+ALL   = $(DEMO) $(CNN)
+
+all: $(ALL)
+
+demo: $(DEMO)
+
+cnn: $(CNN)
+
+lenet: cnn/lenet/lenet.c $(obj)
+	$(cc) -o $(@) cnn/lenet/lenet.c $(obj) $(INC) $(CFLAG) $(LINK)
+
+matmul_test: demo/matmul_test.c $(obj)
+	$(cc) -o $(@) demo/matmul_test.c $(obj) $(INC) $(CFLAG) $(LINK)
 
 list.o: src/list.h src/list.c
 	$(cc) -c src/list.c $(INC) $(CFLAG)
@@ -37,5 +50,5 @@ debug_log.o: src/debug_log.h src/debug_log.c
 	$(cc) -c src/debug_log.c $(INC) $(CFLAG)
 
 clean:
-	find . -name "*.o"  | xargs rm -f && rm lenet
+	find . -name "*.o"  | xargs rm -f && rm $(ALL)
 

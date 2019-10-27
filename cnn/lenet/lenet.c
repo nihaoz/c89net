@@ -28,13 +28,12 @@ char global_string_buffer[256] = {0};
 
 char parameters_path[256] = {0};
 
-#define DEFAULT_PARAMETERS_PATH "./lenet-parameters/"
+#define DEFAULT_PARAMETERS_PATH "./cnn/lenet/lenet-parameters/"
+const char default_test_image[] = "./cnn/lenet/test.bmp";
 
 #ifdef RUN_DEBUG
 	#define DEBUG_OUTPUT_PATH "./debug/"
 #endif
-
-const char default_test_image[] = "test.bmp";
 
 int main(int argc, char const *argv[])
 {
