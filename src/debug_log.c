@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -86,7 +82,3 @@ void format_log(const char *fmt, ...)
 	free(pf);
 	va_end(ap);
 }
-
-#ifdef __cplusplus
-	}
-#endif

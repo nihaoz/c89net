@@ -1,15 +1,11 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "list.h"
+
 #ifdef ENABLE_SSHM
 	#include "sshm.h"
 #endif
-
 #ifdef ENABLE_ZLIB
 	/* #include <gzguts.h> */
 	#include <zlib.h>
@@ -24,9 +20,8 @@ void __________compile_time_test___________()
 	BUILD_BUG_ON(32 - LIST_INFO_LEN);
 }
 
-/*********    Util    *********/
 
-static uint djb_hash(byte *s, uint len, uint seed)
+static uint _djb_hash(byte *s, uint len, uint seed)
 {
 	unsigned int hash = seed;
 	uint i;
@@ -36,29 +31,7 @@ static uint djb_hash(byte *s, uint len, uint seed)
 	return hash;
 }
 
-static void memswap(byte *p1, byte *p2, uint len)
-{
-	byte b;
-	while (len--) {
-		b = *p1;
-		*p1++ = *p2;
-		*p2++ = b;
-	}
-}
-
-static void memrev(void *i, int s)
-{
-	int j = s >> 1;
-	unsigned char *c = i;
-	for (s--; j > 0; j--) {
-		*c ^= *(c + s);
-		*(c + s) ^= *c;
-		*c ^= *(c + s);
-		c++, s -= 2;
-	}
-}
-
-static bool is_little_endian()
+static bool _is_little_endian()
 {
 	unsigned int i = 1;
 	unsigned char *c = (unsigned char*)&i;
@@ -67,37 +40,24 @@ static bool is_little_endian()
 	return false;
 }
 
-static void operation_status(__status ops_stat)
+static void _memswap(byte *p1, byte *p2, uint len)
 {
-	FILE *fp = stdout;
-	switch (ops_stat) {
-		case OPS_SUCCESS :
-			fprintf(fp, "Operation Success!\n");
-			break;
-		case OPS_BAD_ID :
-			fprintf(fp, "Failed : Bad ID\n");
-			break;
-		case OPS_MALLOC_ERR :
-			fprintf(fp, "Failed : Mem Alloc Failed\n");
-			break;
-		case OPS_DYN_ID_EXIST :
-			fprintf(fp, "Failed : Record Exist\n");
-			break;
-		case OPS_BAD_OBJ :
-			fprintf(fp, "Failed : Bad Object\n");
-			break;
-		case OPS_ARG_ILL :
-			fprintf(fp, "Failed : Arg Illegal\n");
-			break;
-		case OPS_LNAME_ERR :
-			fprintf(fp, "Failed : Bad LIST name\n");
-			break;
-		case OPS_FILE_ERR :
-			fprintf(fp, "Failed : File Access Err\n");
-			break;
-		default :
-			fprintf(fp, "Failed : Unknow Error\n");
-			break;
+	while (len--) {
+		*(p1) ^= *(p2);
+		*(p2) ^= *(p1);
+		*(p1++) ^= *(p2++);
+	}
+}
+
+void _memrev(void *i, int s)
+{
+	int j = s >> 1;
+	byte *c = (byte*)i;
+	for (s--; j > 0; j--) {
+		*c ^= *(c + s);
+		*(c + s) ^= *c;
+		*c ^= *(c + s);
+		c++, s -= 2;
 	}
 }
 
@@ -240,9 +200,9 @@ __status list_resize_dynamic(list_t *list, uint newScale)
 	if (TEST_FLAG(list->flag, LIST_UNRESIZABLE))
 		return OPS_BAD_OBJ;
 	if (newScale < list->scale) {
-		int i = newScale;
+		uint i = newScale;
 		for (; i < list->scale; ++i)
-		list_del_dynamic_record(list, i);
+			list_del_dynamic_record(list, i);
 	}
 	byte **newIndex = (byte**)realloc(list->index,
 					newScale * sizeof(byte*));
@@ -413,7 +373,7 @@ __status list_swap_static_record(list_t *list,
 {
 	if (id1 >= list->scale || id2 >= list->scale)
 		return OPS_BAD_ID;
-	memswap(list->mem + id1 * list->blen,
+	_memswap(list->mem + id1 * list->blen,
 		list->mem + id2 * list->blen, list->blen);
 	return OPS_SUCCESS;	
 }
@@ -431,11 +391,11 @@ __status list_swap_dynamic_record(list_t *list,
 }
 
 static void _switch_byte_order(list_t *list) {
-	memrev(&list->length, sizeof(ulong));
-	memrev(&list->key, sizeof(uint));
-	memrev(&list->counter, sizeof(uint));
-	memrev(&list->blen, sizeof(uint));
-	memrev(&list->scale, sizeof(uint));
+	_memrev(&list->length, sizeof(ulong));
+	_memrev(&list->key, sizeof(uint));
+	_memrev(&list->counter, sizeof(uint));
+	_memrev(&list->blen, sizeof(uint));
+	_memrev(&list->scale, sizeof(uint));
 }
 
 __status list_export(list_t *list, const char *path,
@@ -462,8 +422,8 @@ __status list_export_static(list_t *list, const char *path,
 	uint name_len = 0;
 	if (list->name)
 		name_len = strlen(list->name);
-	if (!is_little_endian()) {
-		memrev(&name_len, sizeof(uint));
+	if (!_is_little_endian()) {
+		_memrev(&name_len, sizeof(uint));
 		_switch_byte_order(list);
 	}
 	if (IO_fwrite(&name_len, sizeof(uint), 1, fp) < 0) {
@@ -484,7 +444,7 @@ __status list_export_static(list_t *list, const char *path,
 		return OPS_FILE_ERR;
 	}
 	IO_fclose(fp);
-	if (!is_little_endian()) {
+	if (!_is_little_endian()) {
 		_switch_byte_order(list);
 	}
 	return OPS_SUCCESS;
@@ -503,8 +463,8 @@ __status list_export_dynamic(list_t *list, const char *path,
 	uint name_len = 0;
 	if (list->name)
 		name_len = strlen(list->name);
-	if (!is_little_endian()) {
-		memrev(&name_len, sizeof(uint));
+	if (!_is_little_endian()) {
+		_memrev(&name_len, sizeof(uint));
 		_switch_byte_order(list);
 	}
 	if (IO_fwrite(&name_len, sizeof(uint), 1, fp) < 0) {
@@ -523,27 +483,27 @@ __status list_export_dynamic(list_t *list, const char *path,
 	uint sc = list->scale;
 	while (sc--) {
 		if (list->index[sc]) {
-			if (!is_little_endian())
-				memrev(list->index[sc], sizeof(DynLenFlag));
+			if (!_is_little_endian())
+				_memrev(list->index[sc], sizeof(DynLenFlag));
 			if (IO_fwrite(list->index[sc], sizeof(DynLenFlag) +
 				(DynLenFlag)*list->index[sc], 1, fp) < 0) {
 				IO_fclose(fp);
 				return OPS_FILE_ERR;
 			}
-			if (!is_little_endian()) {
-				memrev(list->index[sc], sizeof(DynLenFlag));
-				memrev(&sc, sizeof(uint));
+			if (!_is_little_endian()) {
+				_memrev(list->index[sc], sizeof(DynLenFlag));
+				_memrev(&sc, sizeof(uint));
 			}
 			if (IO_fwrite(&sc, sizeof(uint), 1, fp) < 0) {
 				IO_fclose(fp);
 				return OPS_FILE_ERR;
 			}
-			if (!is_little_endian())
-				memrev(&sc, sizeof(uint));
+			if (!_is_little_endian())
+				_memrev(&sc, sizeof(uint));
 		}
 	}
 	IO_fclose(fp);
-	if (!is_little_endian()) {
+	if (!_is_little_endian()) {
 		_switch_byte_order(list);
 	}
 	return OPS_SUCCESS;
@@ -562,8 +522,8 @@ list_t *list_import(const char *path)
 	memset(list, 0, sizeof(list_t));
 	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
-	if (!is_little_endian())
-		memrev(&name_len, sizeof(uint));
+	if (!_is_little_endian())
+		_memrev(&name_len, sizeof(uint));
 	name_len++;
 	char *name = (char*)malloc(name_len);
 	if (!name) {
@@ -574,7 +534,7 @@ list_t *list_import(const char *path)
 	memset(name, 0, name_len);
 	IO_fread(name, name_len - 1, 1, fp);
 	IO_fread((byte*)list + LIST_INFO_OFFSET, LIST_INFO_LEN, 1, fp);
-	if (!is_little_endian())
+	if (!_is_little_endian())
 		_switch_byte_order(list);
 	list->name = name;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
@@ -590,8 +550,8 @@ list_t *list_import(const char *path)
 		byte *tmp = NULL;
 		uint id = 0;
 		while (IO_fread(&len, sizeof(DynLenFlag), 1, fp)) {
-			if (!is_little_endian())
-				memrev(&len, sizeof(DynLenFlag));
+			if (!_is_little_endian())
+				_memrev(&len, sizeof(DynLenFlag));
 			tmp = (byte*)malloc(len + sizeof(DynLenFlag));
 			if (!tmp) {
 				list->status |= LIST_IMPORT_ERROR;
@@ -602,8 +562,8 @@ list_t *list_import(const char *path)
 			*(DynLenFlag*)tmp = len;
 			IO_fread(tmp + sizeof(DynLenFlag), len, 1, fp);
 			IO_fread(&id, sizeof(uint), 1, fp);
-			if (!is_little_endian())
-				memrev(&id, sizeof(uint));
+			if (!_is_little_endian())
+				_memrev(&id, sizeof(uint));
 			list->index[id] = tmp;
 		}
 		IO_fclose(fp);
@@ -640,8 +600,8 @@ list_t *list_import_static(const char *path)
 	memset(list, 0, sizeof(list_t));
 	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
-	if (!is_little_endian())
-		memrev(&name_len, sizeof(uint));
+	if (!_is_little_endian())
+		_memrev(&name_len, sizeof(uint));
 	name_len++;
 	char *name = (char*)malloc(name_len);
 	if (!name) {
@@ -652,7 +612,7 @@ list_t *list_import_static(const char *path)
 	memset(name, 0, name_len);
 	IO_fread(name, name_len - 1, 1, fp);
 	IO_fread((byte*)list + LIST_INFO_OFFSET, LIST_INFO_LEN, 1, fp);
-	if (!is_little_endian())
+	if (!_is_little_endian())
 		_switch_byte_order(list);
 	list->name = name;
 	if (!TEST_FLAG(list->flag, LIST_STATIC_MODE)) {
@@ -686,8 +646,8 @@ list_t *list_import_dynamic(const char *path)
 	memset(list, 0, sizeof(list_t));
 	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
-	if (!is_little_endian())
-		memrev(&name_len, sizeof(uint));
+	if (!_is_little_endian())
+		_memrev(&name_len, sizeof(uint));
 	name_len++;
 	char *name = (char*)malloc(name_len);
 	if (!name) {
@@ -698,7 +658,7 @@ list_t *list_import_dynamic(const char *path)
 	memset(name, 0, name_len);
 	IO_fread(name, name_len - 1, 1, fp);
 	IO_fread((byte*)list + LIST_INFO_OFFSET, LIST_INFO_LEN, 1, fp);
-	if (!is_little_endian())
+	if (!_is_little_endian())
 		_switch_byte_order(list);
 	list->name = name;
 	if (!TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
@@ -719,8 +679,8 @@ list_t *list_import_dynamic(const char *path)
 	byte *tmp = NULL;
 	uint id = 0;
 	while (IO_fread(&len, sizeof(DynLenFlag), 1, fp)) {
-		if (!is_little_endian())
-			memrev(&len, sizeof(DynLenFlag));
+		if (!_is_little_endian())
+			_memrev(&len, sizeof(DynLenFlag));
 		tmp = (byte*)malloc(len + sizeof(DynLenFlag));
 		if (!tmp) {
 			list->status |= LIST_IMPORT_ERROR;
@@ -731,8 +691,8 @@ list_t *list_import_dynamic(const char *path)
 		*(DynLenFlag*)tmp = len;
 		IO_fread(tmp + sizeof(DynLenFlag), len, 1, fp);
 		IO_fread(&id, sizeof(uint), 1, fp);
-		if (!is_little_endian())
-			memrev(&id, sizeof(uint));
+		if (!_is_little_endian())
+			_memrev(&id, sizeof(uint));
 		list->index[id] = tmp;
 	}
 	IO_fclose(fp);
@@ -778,7 +738,7 @@ list_t *list_import_dynamic(const char *path)
 		list_t *list = (list_t*)malloc(sizeof(list_t));
 		if (!list)
 			return NULL;
-		byte *shm = create_shm(len +
+		byte *shm = (byte*)create_shm(len +
 				sizeof(list_t) + LIST_NAME_LEN, key);
 		if (!shm) {
 			free(list);
@@ -814,8 +774,8 @@ list_t *list_import_dynamic(const char *path)
 			return NULL;
 		uint name_len;
 		IO_fread(&name_len, sizeof(uint), 1, fp);
-		if (!is_little_endian())
-			memrev(&name_len, sizeof(uint));
+		if (!_is_little_endian())
+			_memrev(&name_len, sizeof(uint));
 		name_len++;
 		char *name = (char*)malloc(name_len);
 		if (!name) {
@@ -825,7 +785,7 @@ list_t *list_import_dynamic(const char *path)
 		memset(name, 0, name_len);
 		IO_fread(name, name_len - 1, 1, fp);
 		IO_fread(list, (sizeof(list_t)), 1, fp);
-		if (!is_little_endian())
+		if (!_is_little_endian())
 			_switch_byte_order(list);
 		uint shmlen = sizeof(list_t) + LIST_NAME_LEN;
 		shmlen += list->length;
@@ -873,7 +833,7 @@ __status list_calc_hash_id(list_t *list,
 			byte *data, uint len, uint arg, uint *id, __hashFx)
 {
 	if (hfx == NULL)
-		hfx = djb_hash;
+		hfx = _djb_hash;
 	uint nhash = hfx(data, len, arg) % list->scale;
 	uint cid = nhash;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
@@ -906,7 +866,7 @@ __status list_search_record_hash_mod(list_t *list,
 			__matchFx, byte *pattern, uint plen, uint *fid)
 {
 	if (hfx == NULL)
-		hfx = djb_hash;
+		hfx = _djb_hash;
 	uint nhash = hfx(data, len, arg) % list->scale;
 	uint id = nhash;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
@@ -965,6 +925,36 @@ void list_print_info(list_t *list, FILE *stream)
 	fprintf(fp, "[block length] = %d\n", list->blen);
 }
 
-#ifdef __cplusplus
+void operation_status(__status ops_stat)
+{
+	FILE *fp = stdout;
+	switch (ops_stat) {
+		case OPS_SUCCESS :
+			fprintf(fp, "Operation Success!\n");
+			break;
+		case OPS_BAD_ID :
+			fprintf(fp, "Failed : Bad ID\n");
+			break;
+		case OPS_MALLOC_ERR :
+			fprintf(fp, "Failed : Mem Alloc Failed\n");
+			break;
+		case OPS_DYN_ID_EXIST :
+			fprintf(fp, "Failed : Record Exist\n");
+			break;
+		case OPS_BAD_OBJ :
+			fprintf(fp, "Failed : Bad Object\n");
+			break;
+		case OPS_ARG_ILL :
+			fprintf(fp, "Failed : Arg Illegal\n");
+			break;
+		case OPS_LNAME_ERR :
+			fprintf(fp, "Failed : Bad LIST name\n");
+			break;
+		case OPS_FILE_ERR :
+			fprintf(fp, "Failed : File Access Err\n");
+			break;
+		default :
+			fprintf(fp, "Failed : Unknow Error\n");
+			break;
 	}
-#endif
+}

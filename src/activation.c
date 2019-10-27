@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 
 #include "activation.h"
@@ -26,7 +22,3 @@ data_layer *activation_relu(data_layer *l, int f)
 	}
 	return n_l;
 }
-
-#ifdef __cplusplus
-	}
-#endif

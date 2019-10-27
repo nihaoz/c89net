@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdlib.h>
 
 #include "data_util.h"
@@ -54,7 +50,3 @@ void _max_pool2_2(float32 *inp, int x, int y, float32 *oup)
 	}
 	return;
 }
-
-#ifdef __cplusplus
-	}
-#endif

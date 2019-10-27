@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,7 +170,3 @@ int _write_pixel(rgb_pixel_t *pixel,
 	img[pixel_p + 2] = pixel->r;
 	return pixel_p;
 }
-
-#ifdef __cplusplus
-	}
-#endif

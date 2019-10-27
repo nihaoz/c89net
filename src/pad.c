@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdlib.h>
 
 #include "pad.h"
@@ -41,7 +37,3 @@ data_layer *pad_surround(data_layer *l, int p, const char *name)
 	list_set_name(pad->data, name);
 	return pad;
 }
-
-#ifdef __cplusplus
-	}
-#endif

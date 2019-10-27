@@ -7,7 +7,7 @@
 #include "conv2d.h"
 #include "list.h"
 #include "data_layer.h"
-#include "std_conv2d.h"
+#include "spatial_conv.h"
 #include "pad.h"
 #include "pool.h"
 #include "activation.h"
@@ -87,7 +87,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L1 conv stride: 1 padding: 2
 	 */
-	data_layer *l1_conv = std_conv2d(inp, conv1_w, conv1_b, 1, 2);
+	data_layer *l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2);
 
 	/*
 	 * L1 relu
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L2 conv stride: 1 padding: 2
 	 */
-	data_layer *l2_conv = std_conv2d(l1_conv_pool, conv2_w, conv2_b, 1, 2);
+	data_layer *l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2);
 
 	/*
 	 * L2 relu
@@ -182,7 +182,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc1, by conv1_1 stride: 1 padding: 0
 	 */
-	data_layer *fc1 = std_conv2d(l2_flat, fc1_w, fc1_b, 1, 0);
+	data_layer *fc1 = spatial_conv(l2_flat, fc1_w, fc1_b, 1, 0);
 
 	#ifdef RUN_DEBUG
 		debug_fprint_data_layer_info(fc1, stdout);
@@ -221,7 +221,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
-	data_layer *fc2 = std_conv2d(fc1_relu, fc2_w, fc2_b, 1, 0);
+	data_layer *fc2 = spatial_conv(fc1_relu, fc2_w, fc2_b, 1, 0);
 
 	/*
 	 * Output result...

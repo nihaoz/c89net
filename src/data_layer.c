@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -313,7 +309,3 @@ void debug_fprint_para_layer_info(para_layer *l, FILE *fp)
 		l->xsize, l->ysize, l->zsize, l->wsize);
 	return;
 }
-
-#ifdef __cplusplus
-	}
-#endif

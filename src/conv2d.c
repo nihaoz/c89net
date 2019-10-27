@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdlib.h>
 
 #include "conv2d.h"
@@ -66,11 +62,12 @@ void _conv_2d(conv_input_t *inp, conv_input_t *oup, int x, int y,
 	float sum;
 	int oup_x = x - (p << 1);
 	int oup_y = y - (p << 1);
-/* If enable OpenMP */
-#ifdef SET_OPENMP
-	/* omp_set_num_threads(num_conv_threads); */
-	#pragma omp parallel for private(sum, j, k, l)
-#endif
+/* If enable OpenMP... Not performing well in processing small kernels
+ * #ifdef ENABLE_OPENMP
+ * 	omp_set_num_threads(num_conv_threads);
+ * 	#pragma omp parallel for private(sum, j, k, l)
+ * #endif
+*/
 	for (i = half_filter_width; i < y - half_filter_width; i += sy)
 	{
 		for (j = half_filter_width; j < x - half_filter_width; j += sx)
@@ -91,7 +88,3 @@ void _conv_2d(conv_input_t *inp, conv_input_t *oup, int x, int y,
 	}
 	return;
 }
-
-#ifdef __cplusplus
-	}
-#endif

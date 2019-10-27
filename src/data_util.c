@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -217,7 +213,3 @@ int channel_bias(channel_float32 *ch, float32 bias)
 	}
 	return 0;
 }
-
-#ifdef __cplusplus
-	}
-#endif

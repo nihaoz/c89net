@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-	extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -159,7 +155,3 @@ int dump_gray_to_text(gray_obj* gray, const char* filename, int format)
 	fclose(fp);
 	return 0;
 }
-
-#ifdef __cplusplus
-	}
-#endif

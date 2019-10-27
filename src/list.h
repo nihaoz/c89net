@@ -1,19 +1,12 @@
 #ifndef _LIST_H_
 #define _LIST_H_
 
-/* Do not edit LIST_NAME_LEN unless necessary */
-#ifndef LIST_NAME_LEN
-	#define LIST_NAME_LEN 128
-#endif
-
-#ifndef LIST_PATH_LEN
-	#define LIST_PATH_LEN 256
-#endif
-
 #ifndef __cplusplus
 	#define bool  unsigned char
 	#define true  1
 	#define false 0
+#else
+	extern "C" {
 #endif
 
 #ifndef uchar
@@ -60,6 +53,15 @@ typedef uchar __status;
 
 #define DYN_LENGTH_TYPE uint
 typedef DYN_LENGTH_TYPE DynLenFlag;
+
+/* Do not edit LIST_NAME_LEN unless necessary */
+#ifndef LIST_NAME_LEN
+	#define LIST_NAME_LEN 128
+#endif
+
+#ifndef LIST_PATH_LEN
+	#define LIST_PATH_LEN 256
+#endif
 
 /*
  * Record on dynamic mode :
@@ -275,5 +277,10 @@ __status list_search_record_hash_mod(list_t *list,
 /*================= Debug =================*/
 #define list_ops operation_status
 void list_print_info(list_t *list, FILE *stream);
+void operation_status(__status ops_stat);
 
 #endif /* _LIST_H_ */
+
+#ifdef __cplusplus
+	}
+#endif

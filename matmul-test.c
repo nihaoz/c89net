@@ -1,15 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "data_util.h"
-#include "image_bmp.h"
-#include "conv2d.h"
-#include "tlist.h"
 #include "data_layer.h"
-#include "std_conv2d.h"
-#include "pad.h"
-#include "pool.h"
-#include "activation.h"
+#include "spatial_conv.h"
 
 int main(int argc, char const *argv[])
 {
@@ -53,7 +46,7 @@ int main(int argc, char const *argv[])
 		printf("w[%d]: %f\n", i, *(p_w + i));
 	}
 
-	data_layer *y = std_conv2d(x, w, NULL, 1, 0);
+	data_layer *y = spatial_conv(x, w, NULL, 1, 0);
 
 	float32 *p_y = (float32*)y->data->mem;
 
