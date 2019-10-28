@@ -71,13 +71,13 @@ int main(int argc, char const *argv[])
 
 	/* Load LeNet L1 conv w */
 	
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_w");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_w");
 	set_string_buffer_2(parameters_path, "conv1_w.bin")
 	para_layer *conv1_w = load_conv2d_kernel_form_binary(
 										global_string_buffer,
 								5, 5, 1, 32, "conv1_w");
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
 	/* Load LeNet L1 conv b */
 	set_string_buffer_2(parameters_path, "conv2_w.bin")
 	para_layer *conv1_b = load_bias_form_binary(
@@ -109,14 +109,14 @@ int main(int argc, char const *argv[])
 		channel_dump_to_text(debug_ch_from_pool1, global_string_buffer, 0);
 	#endif
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_w");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_w");
 	/* Load LeNet L2 conv w */
 	set_string_buffer_2(parameters_path, "conv2_w.bin");
 	para_layer *conv2_w = load_conv2d_kernel_form_binary(
 										global_string_buffer,
 								5, 5, 32, 64, "conv2_w");
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_b");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_b");
 	/* Load LeNet L2 conv b */
 	set_string_buffer_2(parameters_path, "conv2_b.bin");
 	para_layer *conv2_b = load_bias_form_binary(
@@ -143,7 +143,7 @@ int main(int argc, char const *argv[])
 		channel_dump_to_text(debug_ch_from_pool2, global_string_buffer, 0);
 	#endif
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_w");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_w");
 	/* Load LeNet FC1 w */
 	/*
 	 * Loading parameters form big text file, may take a while...
@@ -153,7 +153,7 @@ int main(int argc, char const *argv[])
 									global_string_buffer,
 								1, 1, 3136, 1024, "fc1_w");
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_b");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_b");
 	/* Load LeNet FC1 b */
 	set_string_buffer_2(parameters_path, "fc1_b.bin");
 	para_layer *fc1_b = load_bias_form_binary(
@@ -204,14 +204,14 @@ int main(int argc, char const *argv[])
 		fclose(debug_fp_fc1);
 	#endif
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_w");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_w");
 	/* Load LeNet FC2 w */
 	set_string_buffer_2(parameters_path, "fc2_w.bin");
 	para_layer *fc2_w = load_conv2d_kernel_form_binary(
 									global_string_buffer,
 								1, 1, 1024, 10, "fc2_w");
 
-	format_log("Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_b");
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_b");
 	/* Load LeNet FC2 b */
 	set_string_buffer_2(parameters_path, "fc2_b.bin");
 	para_layer *fc2_b = load_bias_form_binary(

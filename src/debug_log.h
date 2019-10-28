@@ -7,11 +7,15 @@
 
 #define FORMATLOG_FP stderr
 
-void time_tag_warning();
+#define LOG_ERR   0
+#define LOG_WARN  1
+#define LOG_INFO  2
 
-void time_tag_error();
+#define QUICK_LOG_ERR_MEM_ALLOC() \
+	format_log(LOG_ERR, "Memory alloc failed @ %s: %d",\
+						 __FILE__, __LINE__);
 
-void format_log(const char *fmt, ...);
+void format_log(int logtype, const char *fmt, ...);
 
 #ifdef __cplusplus
 	}

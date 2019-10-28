@@ -85,21 +85,44 @@
 	#define float64 double
 #endif
 
-#define DATATYPE_UINT8    0x00
-#define DATATYPE_UINT16   0x01
-#define DATATYPE_UINT32   0x02
-#define DATATYPE_UINT64   0x03
-#define DATATYPE_INT8     0x10
-#define DATATYPE_INT16    0x11
-#define DATATYPE_INT32    0x12
-#define DATATYPE_INT64    0x13
-/* #define DATATYPE_FLOAT16  0x20 */
-#define DATATYPE_FLOAT32  0x21
-#define DATATYPE_FLOAT64  0x22
+/*
+ *
+ * 7 6 5 4 3  ~  0
+ * | | | | |_____|
+ * | | | |    |____sub-class code
+ * | | |
+ * | |
+ * | |______integer or float(0/1)
+ * |
+ * |______unsigned or signed(0/1)
+ *
+ * Sub class code:
+ * n:   type ^ n
+ *
+ */
 
-#define datatype_check(dt1, dt2) !(dt1 - dt2)
+#define DATATYPE_FLAG_POINT 6
+#define DATATYPE_FLAG_SIGN  7
+
+#define DATATYPE_UINT8    0x03
+#define DATATYPE_UINT16   0x04
+#define DATATYPE_UINT32   0x05
+#define DATATYPE_UINT64   0x06
+#define DATATYPE_INT8     0x83
+#define DATATYPE_INT16    0x84
+#define DATATYPE_INT32    0x85
+#define DATATYPE_INT64    0x86
+/* #define DATATYPE_FLOAT16  0xC4 */
+#define DATATYPE_FLOAT32  0xC5
+#define DATATYPE_FLOAT64  0xC6
+
+#define datatype_check(dt1, dt2) (!(dt1 - dt2))
 
 int sizeof_datatype(int dt);
+
+int is_datatype_float(int dt);
+
+int is_datatype_integer(int dt);
 
 const char *datatype_to_string(int dt);
 

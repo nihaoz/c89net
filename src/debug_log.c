@@ -6,6 +6,18 @@
 
 #include "debug_log.h"
 
+const char *_log_clock_style_str(int logtype)
+{
+	switch (logtype) {
+		case LOG_ERR:
+			return "\033[;31m";
+		case LOG_WARN:
+			return "\033[;33m";
+		case LOG_INFO:
+			return "\033[0;36m";
+	}
+}
+
 static int _account_symbol(char *s, char ch)
 {
 	int c = 0;
@@ -31,17 +43,7 @@ static void _print_time(FILE *fp, const char *fmt)
 	fprintf(fp, fmt, clk);
 }
 
-void time_tag_warning()
-{
-	_print_time(FORMATLOG_FP, "[\033[;33m%08ld\033[0m]: ");
-}
-
-void time_tag_error()
-{
-	_print_time(FORMATLOG_FP, "[\033[;31m%08ld\033[0m]: ");
-}
-
-void format_log(const char *fmt, ...)
+void format_log(int logtype, const char *fmt, ...)
 {
 	char *p, *f, *pf;
 	int n;
@@ -53,7 +55,8 @@ void format_log(const char *fmt, ...)
 	f = pf = (char*)malloc(strlen(fmt) + 1);
 	strcpy(f, fmt);
 	/* fprintf(FORMATLOG_FP, "[%ld:%ld] : ", t, clk); */
-	fprintf(FORMATLOG_FP, "[\033[0;36m%08ld\033[0m]: ", clk);
+	fprintf(FORMATLOG_FP, "[%s%08ld\033[0m]: ",
+					_log_clock_style_str(logtype), clk);
 	va_start(ap, fmt);
 	n = _account_symbol(f, '%');
 	p = _find_symbol(f, '%');
