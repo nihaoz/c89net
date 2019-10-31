@@ -5,12 +5,12 @@ OMP   = -DENABLE_OPENMP -fopenmp
 LINK  = -lm
 INC   = -I ./src/
 
-CFLAG = -std=c89 -DCONFIG_STD_C89 $(OMP)
+CFLAG = -std=c89 -DCONFIG_STD_C89 $(OMP) -Os
 
 obj   = list.o image_util.o image_bmp.o data_util.o data_types.o conv2d.o \
 		spatial_conv.o activation.o data_layer.o pad.o pool.o debug_log.o
 
-DEMO  = matmul_test
+DEMO  =
 CNN   = lenet
 ALL   = $(DEMO) $(CNN)
 

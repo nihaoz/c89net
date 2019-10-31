@@ -11,7 +11,7 @@
  * Default padding with 0
  */
 
-data_layer *pad_surround(data_layer *l, int p, const char *name);
+feature_map_t *pad_surround(feature_map_t *l, int p, const char *name);
 
 #ifdef __cplusplus
 	}

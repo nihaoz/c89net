@@ -2,10 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "data_util.h"
 #include "image_bmp.h"
-#include "conv2d.h"
-#include "list.h"
 #include "data_layer.h"
 #include "spatial_conv.h"
 #include "pad.h"
@@ -61,7 +58,7 @@ int main(int argc, char const *argv[])
 
 	/* Load input layer */
 	channel_t *chs[] = {ch_gray};
-	data_layer *inp = data_layer_by_channels(chs, 1, "input");
+	feature_map_t *inp = feature_map_by_channels(chs, 1, "input");
 
 	#ifdef RUN_DEBUG
 		channel_float32 *debug_ch_from_inp = copy_channel_form_layer(inp, 0);
@@ -70,78 +67,32 @@ int main(int argc, char const *argv[])
 	#endif
 
 	/* Load LeNet L1 conv w */
-	
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_w");
 	set_string_buffer_2(parameters_path, "conv1_w.bin")
-	para_layer *conv1_w = load_conv2d_kernel_form_binary(
+	cnn_para_t *conv1_w = load_cnn_conv2d_kernel(
 										global_string_buffer,
 								5, 5, 1, 32, "conv1_w");
 
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
 	/* Load LeNet L1 conv b */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
 	set_string_buffer_2(parameters_path, "conv2_w.bin")
-	para_layer *conv1_b = load_bias_form_binary(
+	cnn_para_t *conv1_b = load_cnn_bias(
 								global_string_buffer,
 								32, "conv1_b");
-	/*
-	 * L1 conv stride: 1 padding: 2
-	 */
-	data_layer *l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2);
 
-	/*
-	 * L1 relu
-	 */
-	data_layer *l1_conv_relu = activation_relu(l1_conv, 0);
-
-	#ifdef RUN_DEBUG
-		channel_float32 *debug_ch_from_conv1 = copy_channel_form_layer(l1_conv_relu, 0);
-		set_string_buffer_2(DEBUG_OUTPUT_PATH, "debug_ch_from_conv1.txt");
-		channel_dump_to_text(debug_ch_from_conv1, global_string_buffer, 0);
-	#endif
-	/*
-	 * L1 max pool 2 * 2
-	 */
-	data_layer *l1_conv_pool = max_pool2_2(l1_conv_relu);
-
-	#ifdef RUN_DEBUG
-		channel_float32 *debug_ch_from_pool1 = copy_channel_form_layer(l1_conv_pool, 0);
-		set_string_buffer_2(DEBUG_OUTPUT_PATH, "debug_ch_from_pool1.txt");
-		channel_dump_to_text(debug_ch_from_pool1, global_string_buffer, 0);
-	#endif
-
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_w");
 	/* Load LeNet L2 conv w */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_w");
 	set_string_buffer_2(parameters_path, "conv2_w.bin");
-	para_layer *conv2_w = load_conv2d_kernel_form_binary(
+	cnn_para_t *conv2_w = load_cnn_conv2d_kernel(
 										global_string_buffer,
 								5, 5, 32, 64, "conv2_w");
 
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_b");
 	/* Load LeNet L2 conv b */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_b");
 	set_string_buffer_2(parameters_path, "conv2_b.bin");
-	para_layer *conv2_b = load_bias_form_binary(
+	cnn_para_t *conv2_b = load_cnn_bias(
 								global_string_buffer,
 								64, "conv2_b");
-	/*
-	 * L2 conv stride: 1 padding: 2
-	 */
-	data_layer *l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2);
-
-	/*
-	 * L2 relu
-	 */
-	data_layer *l2_conv_relu = activation_relu(l2_conv, 0);
-
-	/*
-	 * L2 max pool 2 * 2
-	 */
-	data_layer *l2_conv_pool = max_pool2_2(l2_conv_relu);
-
-	#ifdef RUN_DEBUG
-		channel_float32 *debug_ch_from_pool2 = copy_channel_form_layer(l2_conv_pool, 0);
-		set_string_buffer_2(DEBUG_OUTPUT_PATH, "debug_ch_from_pool2.txt");
-		channel_dump_to_text(debug_ch_from_pool2, global_string_buffer, 0);
-	#endif
 
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_w");
 	/* Load LeNet FC1 w */
@@ -149,83 +100,82 @@ int main(int argc, char const *argv[])
 	 * Loading parameters form big text file, may take a while...
 	 */
 	set_string_buffer_2(parameters_path, "fc1_w.bin");
-	para_layer *fc1_w = load_conv2d_kernel_form_binary(
+	cnn_para_t *fc1_w = load_cnn_conv2d_kernel(
 									global_string_buffer,
 								1, 1, 3136, 1024, "fc1_w");
 
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_b");
 	/* Load LeNet FC1 b */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_b");
 	set_string_buffer_2(parameters_path, "fc1_b.bin");
-	para_layer *fc1_b = load_bias_form_binary(
+	cnn_para_t *fc1_b = load_cnn_bias(
 									global_string_buffer,
 								1024, "fc1_b");
-	/*
-	 * Reshape l2_conv_pool layer for fully-connected layer
-	 */
-	/* int ops_state = data_layer_reshape(l2_conv_pool, 1, 1, 3136); */
-	/* data_layer_reshape(l2_conv_pool, 1, 1, 3136); */
-	data_layer *l2_flat = data_layer_flat(l2_conv_pool);
 
-	#ifdef RUN_DEBUG
-		set_string_buffer_2(DEBUG_OUTPUT_PATH, "debug_ch_3136.txt");
-		FILE *debug_fp_3136 = fopen(global_string_buffer, "w+");
-		int debug_counter_3136;
-		float32 *p_debug_3136 = (float32*)l2_flat->data->mem;
-		for (debug_counter_3136 = 0; debug_counter_3136 < 3136; ++debug_counter_3136)
-		{
-			fprintf(debug_fp_3136, "%.8f ", *(p_debug_3136 + debug_counter_3136));
-		}
-		fclose(debug_fp_3136);
-	#endif
-
-	/*
-	 * L fc1, by conv1_1 stride: 1 padding: 0
-	 */
-	data_layer *fc1 = spatial_conv(l2_flat, fc1_w, fc1_b, 1, 0);
-
-	#ifdef RUN_DEBUG
-		debug_fprint_data_layer_info(fc1, stdout);
-	#endif
-
-	/*
-	 * L fc1 relu
-	 */
-	data_layer *fc1_relu = activation_relu(fc1, 1);
-
-	#ifdef RUN_DEBUG
-		set_string_buffer_2(DEBUG_OUTPUT_PATH, "debug_ch_from_fc1_relu.txt");
-		FILE *debug_fp_fc1 = fopen(global_string_buffer, "w+");
-		int debug_counter_fc1;
-		float32 *p_debug_fc1 = (float32*)fc1_relu->data->mem;
-		for (debug_counter_fc1 = 0; debug_counter_fc1 < 1024; ++debug_counter_fc1)
-		{
-			fprintf(debug_fp_fc1, "%.8f ", *(p_debug_fc1 + debug_counter_fc1));
-		}
-		fclose(debug_fp_fc1);
-	#endif
-
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_w");
 	/* Load LeNet FC2 w */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_w");
 	set_string_buffer_2(parameters_path, "fc2_w.bin");
-	para_layer *fc2_w = load_conv2d_kernel_form_binary(
+	cnn_para_t *fc2_w = load_cnn_conv2d_kernel(
 									global_string_buffer,
 								1, 1, 1024, 10, "fc2_w");
 
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_b");
 	/* Load LeNet FC2 b */
+	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_b");
 	set_string_buffer_2(parameters_path, "fc2_b.bin");
-	para_layer *fc2_b = load_bias_form_binary(
+	cnn_para_t *fc2_b = load_cnn_bias(
 									global_string_buffer,
 								10, "fc2_b");
+
+	format_log(LOG_INFO, "Loading LeNet parameters finished");
+
+	feature_map_t *l1_conv, *l1_conv_relu, *l1_conv_pool, *l2_conv, *l2_conv_relu, \
+		*l2_conv_pool, *l2_flat, *fc1, *fc1_relu, *fc2;
+
+	/*
+	 * L1 conv stride: 1 padding: 2
+	 */
+	l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2);
+	/*
+	 * L1 relu
+	 */
+	l1_conv_relu = activation_relu(l1_conv, 0);
+	/*
+	 * L1 max pool 2 * 2
+	 */
+	l1_conv_pool = max_pool2_2(l1_conv_relu);
+	/*
+	 * L2 conv stride: 1 padding: 2
+	 */
+	l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2);
+	/*
+	 * L2 relu
+	 */
+	l2_conv_relu = activation_relu(l2_conv, 0);
+	/*
+	 * L2 max pool 2 * 2
+	 */
+	l2_conv_pool = max_pool2_2(l2_conv_relu);
+	/*
+	 * Reshape l2_conv_pool layer for fully-connected layer
+	 */
+	l2_flat = feature_map_flat(l2_conv_pool);
+	/*
+	 * L fc1, by conv1_1 stride: 1 padding: 0
+	 */
+
+	format_log(LOG_INFO, "Computing finished!");
+	fc1 = spatial_conv(l2_flat, fc1_w, fc1_b, 1, 0);
+	/*
+	 * L fc1 relu
+	 */
+	fc1_relu = activation_relu(fc1, 1);
 	/*
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
-	data_layer *fc2 = spatial_conv(fc1_relu, fc2_w, fc2_b, 1, 0);
+	fc2 = spatial_conv(fc1_relu, fc2_w, fc2_b, 1, 0);
 
 	/*
 	 * Output result...
 	 */
-
 	float32 *p = (float32*)fc2->data->mem;
 	float32 max_value = 0;
 	int     max_index = 0;
@@ -240,5 +190,6 @@ int main(int argc, char const *argv[])
 	}
 	printf("MAX INDEX: \33[1;31m%d\33[0m, it's the prediction result of [%s]\n",
 				max_index, input_name);
+
 	return 0;
 }

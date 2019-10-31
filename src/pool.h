@@ -10,9 +10,9 @@
 /*
  * For testing only, using max_pool2_2 before implement
  * generic max_pool
- * data_layer *max_pool(int sx, int y, int padding);
+ * feature_map_t *max_pool(int sx, int y, int padding);
  */
-data_layer *max_pool2_2(data_layer *l);
+feature_map_t *max_pool2_2(feature_map_t *l);
 
 void _max_pool2_2(float32 *inp, int x, int y, float32 *oup);
 

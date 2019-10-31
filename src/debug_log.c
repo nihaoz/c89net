@@ -15,6 +15,8 @@ const char *_log_clock_style_str(int logtype)
 			return "\033[;33m";
 		case LOG_INFO:
 			return "\033[0;36m";
+		default:
+			return NULL;
 	}
 }
 

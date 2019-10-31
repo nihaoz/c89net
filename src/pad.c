@@ -6,11 +6,11 @@
  * Checkout this!
  * What to do when padding set to 0 ?
  */
-data_layer *pad_surround(data_layer *l, int p, const char *name)
+feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 {
 	if (!l || p < 0)
 		return NULL;
-	data_layer *pad = (data_layer*)malloc(sizeof(data_layer));
+	feature_map_t *pad = (feature_map_t*)malloc(sizeof(feature_map_t));
 	if (!pad)
 		return NULL;
 	pad->datatype = l->datatype;

@@ -8,8 +8,8 @@
 #include "pad.h"
 #include "spatial_conv.h"
 
-data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
-							para_layer *bias, int s, int p)
+feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
+							cnn_para_t *bias, int s, int p)
 {
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
@@ -18,12 +18,12 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 		return NULL;
 	}
 	/* Add padding */
-	data_layer *inp_pad = pad_surround(inp, p, "tmp");
+	feature_map_t *inp_pad = pad_surround(inp, p, "tmp");
 	if (!inp_pad)
 		return NULL;
-	data_layer *oup = (data_layer*)malloc(sizeof(data_layer));
+	feature_map_t *oup = (feature_map_t*)malloc(sizeof(feature_map_t));
 	if (!oup) {
-		free_data_layer(inp_pad);
+		free_feature_map(inp_pad);
 		return NULL;
 	}
 	oup->datatype = inp->datatype;
@@ -33,7 +33,7 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 	oup->data  = list_new_static(kernel->wsize, sizeof(float32) * oup->xsize * oup->ysize);
 	if (!oup->data) {
 		free(oup);
-		free_data_layer(inp_pad);
+		free_feature_map(inp_pad);
 		return NULL;
 	}
 	int oup_ch_size = oup->xsize * oup->ysize;
@@ -49,8 +49,8 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 	float32 *omp_out_buf = 
 		(float32*)malloc(sizeof(float32) * oup_ch_size * num_omp_threads);
 	if (!omp_out_buf) {
-		free_data_layer(oup);
-		free_data_layer(inp_pad);
+		free_feature_map(oup);
+		free_feature_map(inp_pad);
 		return NULL;
 	}
 
@@ -86,10 +86,10 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 	}
 	free(omp_out_buf);
 	if (!bias){
-		free_data_layer(inp_pad);
+		free_feature_map(inp_pad);
 		return oup;
 	} else {
-		float32 *p_bias = bias_data_from_layer(bias);
+		float32 *p_bias = bias_from_cnn_parameters(bias);
 		for (i = 0; i < kernel->wsize; ++i)
 		{
 			for (k = 0; k < oup_ch_size; ++k)
@@ -98,6 +98,6 @@ data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
 			}
 		}
 	}
-	free_data_layer(inp_pad);
+	free_feature_map(inp_pad);
 	return oup;
 }

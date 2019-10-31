@@ -9,8 +9,8 @@
 #include "conv2d.h"
 #include "data_layer.h"
 
-data_layer *spatial_conv(data_layer *inp, para_layer *kernel,
-							para_layer *bias, int s, int p);
+feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
+							cnn_para_t *bias, int s, int p);
 
 #ifdef __cplusplus
 	}

@@ -9,9 +9,9 @@ static float32 max(float32 a, float32 b)
 	return  a > b ? a : b;
 }
 
-data_layer *max_pool2_2(data_layer *l)
+feature_map_t *max_pool2_2(feature_map_t *l)
 {
-	data_layer *pool = (data_layer*)malloc(sizeof(data_layer));
+	feature_map_t *pool = (feature_map_t*)malloc(sizeof(feature_map_t));
 	if (!pool)
 		return NULL;
 	pool->datatype = l->datatype;

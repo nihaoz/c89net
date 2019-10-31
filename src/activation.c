@@ -4,13 +4,13 @@
 #include "data_util.h"
 #include "list.h"
 
-data_layer *activation_relu(data_layer *l, int f)
+feature_map_t *activation_relu(feature_map_t *l, int f)
 {
-	data_layer *n_l;
+	feature_map_t *n_l;
 	if (f == ACTIVATION_SELF) {
 		n_l = l;
 	} else {
-		n_l = data_layer_clone(l, NULL);
+		n_l = feature_map_clone(l, NULL);
 		if (!n_l)
 			return NULL;
 	}

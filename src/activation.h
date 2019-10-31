@@ -10,7 +10,7 @@
 
 #include "data_layer.h"
 
-data_layer *activation_relu(data_layer *l, int f);
+feature_map_t *activation_relu(feature_map_t *l, int f);
 
 #ifdef __cplusplus
 	}

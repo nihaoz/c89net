@@ -24,7 +24,7 @@ typedef struct {
 	int xsize;
 	int ysize;
 	int zsize;
-} data_layer;
+} feature_map_t;
 
 /*
  * Conv 2-D kernel:
@@ -41,44 +41,38 @@ typedef struct {
 	int ysize;
 	int zsize;
 	int wsize;
-} para_layer;
+} cnn_para_t;
 
-data_layer *data_layer_by_channels(channel_t **chs, int n, const char *name);
+feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name);
 
-data_layer *data_layer_serialized(int data_type, ...);
+/* feature_map_t *feature_map_serialized(int data_type, ...); */
 
-data_layer *data_layer_clone(data_layer *l, const char *name);
+feature_map_t *feature_map_clone(feature_map_t *l, const char *name);
 
-channel_t *copy_channel_form_layer(data_layer *l, int id);
+channel_t *copy_channel_form_layer(feature_map_t *l, int id);
 
-int data_layer_modify_shape(data_layer *l, int x, int y, int z);
+int feature_map_modify_shape(feature_map_t *l, int x, int y, int z);
 
-data_layer *data_layer_flat(data_layer *l);
+feature_map_t *feature_map_flat(feature_map_t *l);
 
 /* Haven't implemented yet */
-data_layer *data_layer_reshape(data_layer *l, int x, int y, int z);
+feature_map_t *feature_map_reshape(feature_map_t *l, int x, int y, int z);
 
-data_layer *free_data_layer(data_layer *l);
-para_layer *free_para_layer(para_layer *l);
+feature_map_t *free_data_layer(feature_map_t *l);
+cnn_para_t *free_cnn_parameters(cnn_para_t *l);
 
 /* Testing functions */
-
-para_layer *load_conv2d_kernel_form_text(const char *filename,
+cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 				int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
 
-para_layer *load_conv2d_kernel_form_binary(const char *filename,
-				int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
+cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name);
 
-para_layer *load_bias_form_text(const char *filename, int ch_x, const char *name);
+float32 *bias_from_cnn_parameters(cnn_para_t *l);
 
-para_layer *load_bias_form_binary(const char *filename, int ch_x, const char *name);
+channel_t *copy_kernel_form_layer(cnn_para_t *l, int id);
 
-float32 *bias_data_from_layer(para_layer *l);
-
-channel_t *copy_kernel_form_layer(para_layer *l, int id);
-
-void debug_fprint_data_layer_info(data_layer *l, FILE *fp);
-void debug_fprint_para_layer_info(para_layer *l, FILE *fp);
+void debug_fprint_feature_map_info(feature_map_t *l, FILE *fp);
+void debug_fprint_cnn_parameters_info(cnn_para_t *l, FILE *fp);
 
 #ifdef __cplusplus
 	}
