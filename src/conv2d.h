@@ -9,8 +9,10 @@
 
 #include "data_util.h"
 
-typedef float32 conv_input_t;
-typedef float32 conv_filter_t;
+/*
+ * typedef float32 conv_input_t;
+ * typedef float32 conv_filter_t;
+ */
 
 channel_t *conv2d_filter(float32 *data, int size);
 
@@ -23,7 +25,7 @@ channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p);
  * s  : stride
  * p  : padding
  */
-int _conv_2d_size_calc(int inp, int k, int s, int p);
+int conv_2d_size_calc(int inp, int k, int s, int p);
 
 /*
  * Pre-allocate memory for output by conv2d
@@ -31,10 +33,10 @@ int _conv_2d_size_calc(int inp, int k, int s, int p);
  * s : stride
  * p : padding
  */
-channel_t *_conv_2d_malloc(channel_t *ch, int k, int s, int p);
+channel_t *conv_2d_malloc(channel_t *ch, int k, int s, int p);
 
-void _conv_2d(conv_input_t *inp, conv_input_t *oup, int x, int y,
-				int sx, int sy, int p, conv_filter_t *filter, int filter_width);
+void naive_conv_2d(float32 *inp, float32 *oup, int x, int y,
+				int sx, int sy, int p, float32 *filter, int fw);
 
 #ifdef __cplusplus
 	}

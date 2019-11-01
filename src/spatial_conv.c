@@ -8,6 +8,17 @@
 #include "pad.h"
 #include "spatial_conv.h"
 
+/*
+ * Ref: global_function_config.h
+ * void (*_conv_2d)(float32 *inp, float32 *oup, int x, int y,
+ *			int sx, int sy, int p, float32 *filter, int filter_width);
+ */
+
+/* #include "global_function_config.h" */
+
+extern (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
+			int sx, int sy, int p, float32 *filter, int filter_width);
+
 feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 							cnn_para_t *bias, int s, int p)
 {
@@ -27,8 +38,8 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 		return NULL;
 	}
 	oup->datatype = inp->datatype;
-	oup->xsize = _conv_2d_size_calc(inp->xsize, kernel->xsize, s, p);
-	oup->ysize = _conv_2d_size_calc(inp->ysize, kernel->ysize, s, p);
+	oup->xsize = conv_2d_size_calc(inp->xsize, kernel->xsize, s, p);
+	oup->ysize = conv_2d_size_calc(inp->ysize, kernel->ysize, s, p);
 	oup->zsize = kernel->wsize;
 	oup->data  = list_new_static(kernel->wsize, sizeof(float32) * oup->xsize * oup->ysize);
 	if (!oup->data) {
@@ -62,15 +73,15 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 		for (j = 0; j < kernel->zsize; ++j)
 		{
 #ifdef ENABLE_OPENMP
-			_conv_2d((conv_input_t*)(inp_pad->data->mem + j * p_ch_mem_eval),
+			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_eval),
 								omp_out_buf + omp_get_thread_num() * oup_ch_size,
 							inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(conv_filter_t*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
+					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
 				kernel->xsize);
 #else
-			_conv_2d((conv_input_t*)(inp_pad->data->mem + j * p_ch_mem_eval),
+			_conv_2d_float32((conv_input_t*)(inp_pad->data->mem + j * p_ch_mem_eval),
 							omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(conv_filter_t*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
+					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
 				kernel->xsize);
 
 #endif

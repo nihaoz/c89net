@@ -1,6 +1,6 @@
+/* Spatial Convolution */
 #ifndef _SPATIAL_CONV_H_
 #define _SPATIAL_CONV_H_
-/* Spatial Convolution */
 
 #ifdef __cplusplus
 	extern "C" {
