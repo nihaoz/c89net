@@ -79,7 +79,7 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
 				kernel->xsize);
 #else
-			_conv_2d_float32((conv_input_t*)(inp_pad->data->mem + j * p_ch_mem_eval),
+			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_eval),
 							omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
 					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
 				kernel->xsize);

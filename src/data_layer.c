@@ -123,7 +123,7 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l)
 cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 				int ch_x, int ch_y, int ch_i, int ch_o, const char *name)
 {
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
 	int counter_chk = 0;
@@ -180,7 +180,7 @@ float32 *bias_from_cnn_parameters(cnn_para_t *l)
 
 cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name)
 {
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
 	int counter_chk = 0;
