@@ -11,7 +11,7 @@ G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
 obj   = list.o image_util.o image_bmp.o data_util.o data_types.o conv2d.o \
 		spatial_conv.o activation.o data_layer.o pad.o pool.o debug_log.o \
-		global_function_config.o
+		fullyconn.o global_function_config.o
 
 DEMO  =
 CNN   = lenet
@@ -51,6 +51,8 @@ activation.o: src/activation.h src/activation.c
 	$(cc) -c src/activation.c $(INC) $(CFLAG)
 spatial_conv.o: src/spatial_conv.h src/spatial_conv.c
 	$(cc) -c src/spatial_conv.c $(INC) $(CFLAG)
+fullyconn.o: src/fullyconn.h src/fullyconn.c
+	$(cc) -c src/fullyconn.c $(INC) $(CFLAG)
 data_layer.o: src/data_layer.h src/data_layer.c
 	$(cc) -c src/data_layer.c $(INC) $(CFLAG)
 debug_log.o: src/debug_log.h src/debug_log.c

@@ -5,6 +5,7 @@
 #include "image_bmp.h"
 #include "data_layer.h"
 #include "spatial_conv.h"
+#include "fullyconn.h"
 #include "pad.h"
 #include "pool.h"
 #include "activation.h"
@@ -163,7 +164,7 @@ int main(int argc, char const *argv[])
 	 */
 
 	format_log(LOG_INFO, "Computing finished!");
-	fc1 = spatial_conv(l2_flat, fc1_w, fc1_b, 1, 0);
+	fc1 = fully_connected(l2_flat, fc1_w, fc1_b);
 	/*
 	 * L fc1 relu
 	 */
@@ -171,7 +172,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
-	fc2 = spatial_conv(fc1_relu, fc2_w, fc2_b, 1, 0);
+	fc2 = fully_connected(fc1_relu, fc2_w, fc2_b);
 
 	/*
 	 * Output result...
