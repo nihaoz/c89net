@@ -26,4 +26,8 @@ void (*_fully_connected_float32)(float32 *inp,
 				float32 *oup, float32 *w, float32 *b, int iw, int ow) = \
 		naive_fully_connected;
 
+#ifdef __cplusplus
+	}
+#endif
+
 #endif /* _GLOBAL_FN_CFG_H_ */

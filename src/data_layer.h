@@ -58,7 +58,7 @@ feature_map_t *feature_map_flat(feature_map_t *l);
 /* Haven't implemented yet */
 feature_map_t *feature_map_reshape(feature_map_t *l, int x, int y, int z);
 
-feature_map_t *free_data_layer(feature_map_t *l);
+feature_map_t *free_feature_map(feature_map_t *l);
 cnn_para_t *free_cnn_parameters(cnn_para_t *l);
 
 /* Testing functions */

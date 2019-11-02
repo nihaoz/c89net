@@ -279,8 +279,8 @@ __status list_search_record_hash_mod(list_t *list,
 void list_print_info(list_t *list, FILE *stream);
 void operation_status(__status ops_stat);
 
-#endif /* _LIST_H_ */
-
 #ifdef __cplusplus
 	}
 #endif
+
+#endif /* _LIST_H_ */

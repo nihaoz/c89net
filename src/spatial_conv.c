@@ -16,7 +16,7 @@
 
 /* #include "global_function_config.h" */
 
-extern (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
+extern void (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
 			int sx, int sy, int p, float32 *filter, int filter_width);
 
 feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
@@ -48,10 +48,10 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 		return NULL;
 	}
 	int oup_ch_size = oup->xsize * oup->ysize;
-	int p_ch_mem_eval = inp_pad->xsize * inp_pad->ysize * sizeof(float32);
-	int o_ch_mem_eval = oup->xsize * oup->ysize * sizeof(float32);
-	int k_mem_eval    = kernel->xsize * kernel->ysize * kernel->zsize * sizeof(float32);
-	int k_ch_mem_eval = kernel->xsize * kernel->ysize * sizeof(float32);
+	int p_ch_mem_size = inp_pad->xsize * inp_pad->ysize * sizeof(float32);
+	int o_ch_mem_size = oup->xsize * oup->ysize * sizeof(float32);
+	int k_mem_size    = kernel->xsize * kernel->ysize * kernel->zsize * sizeof(float32);
+	int k_ch_mem_size = kernel->xsize * kernel->ysize * sizeof(float32);
 	int i, j, k;
 	int num_omp_threads = 1;
 #ifdef ENABLE_OPENMP
@@ -73,24 +73,24 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 		for (j = 0; j < kernel->zsize; ++j)
 		{
 #ifdef ENABLE_OPENMP
-			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_eval),
+			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_size),
 								omp_out_buf + omp_get_thread_num() * oup_ch_size,
 							inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
+					(float32*)(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 #else
-			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_eval),
+			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_size),
 							omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(float32*)(kernel->data->mem + (i * k_mem_eval) + j * k_ch_mem_eval),
+					(float32*)(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 
 #endif
 			for (k = 0; k < oup_ch_size; ++k)
 			{
 #ifdef ENABLE_OPENMP
-				*(((float32*)(oup->data->mem + i * o_ch_mem_eval)) + k) += (omp_out_buf + omp_get_thread_num() * oup_ch_size)[k];
+				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) += (omp_out_buf + omp_get_thread_num() * oup_ch_size)[k];
 #else
-				*(((float32*)(oup->data->mem + i * o_ch_mem_eval)) + k) += omp_out_buf[k];
+				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) += omp_out_buf[k];
 #endif
 			}
 		}
@@ -105,7 +105,7 @@ feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
 		{
 			for (k = 0; k < oup_ch_size; ++k)
 			{
-				*(((float32*)(oup->data->mem + i * o_ch_mem_eval)) + k) += p_bias[i];
+				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) += p_bias[i];
 			}
 		}
 	}

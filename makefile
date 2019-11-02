@@ -1,11 +1,13 @@
-cc = gcc
+cc = g++
 
 OMP   = -DENABLE_OPENMP -fopenmp
+C89F  = # -std=c89 -DCONFIG_STD_C89
+OPTF  = -Os
 
 LINK  = -lm
 INC   = -I ./src/
 
-CFLAG = -std=c89 -DCONFIG_STD_C89 $(OMP) -Os
+CFLAG = $(C89F) $(OMP) $(OPTF)
 
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
