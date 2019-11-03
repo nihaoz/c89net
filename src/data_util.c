@@ -16,7 +16,6 @@ const char _elem_print_format[2][6] = {
 	{"%08x "}
 };
 
-
 channel_t *new_channel(int dt, int x, int y)
 {
 	channel_t *ch;

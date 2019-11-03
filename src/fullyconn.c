@@ -16,6 +16,7 @@ void naive_fully_connected(float32 *inp, float32 *oup,
 #endif
 	for (i = 0; i < ow; ++i)
 	{
+		oup[i] = 0;
 		for (j = 0; j < iw; ++j)
 		{
 			oup[i] += (*(inp + j)) * (*(w + iw * i + j));

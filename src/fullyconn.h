@@ -1,6 +1,6 @@
 /* Fully connections */
-#ifndef _FULLYCOON_H_
-#define _FULLYCOON_H_
+#ifndef _FULLYCONN_H_
+#define _FULLYCONN_H_
 
 #ifdef __cplusplus
 	extern "C" {
@@ -20,4 +20,4 @@ feature_map_t *spatial_conv_fully_connected(feature_map_t *inp,
 	}
 #endif
 
-#endif /* _FULLYCOON_H_ */
+#endif /* _FULLYCONN_H_ */
