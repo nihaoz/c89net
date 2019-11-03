@@ -11,6 +11,9 @@ void naive_fully_connected(float32 *inp, float32 *oup,
 					float32 *w, float32 *b, int iw, int ow)
 {
 	int i, j;
+#ifdef ENABLE_OPENMP
+#pragma omp parallel for private(i, j)
+#endif
 	for (i = 0; i < ow; ++i)
 	{
 		for (j = 0; j < iw; ++j)
