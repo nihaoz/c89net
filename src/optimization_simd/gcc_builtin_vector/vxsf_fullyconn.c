@@ -13,7 +13,7 @@ static float32 _v4sf_sum(v4sf vf)
 	return s;
 }
 
-void v4sf_fully_connected(float32 *inp, float32 *oup,
+void v4sf_fully_connected_float32(float32 *inp, float32 *oup,
 					float32 *w, float32 *b, int iw, int ow)
 {
 	int i, j;
@@ -36,4 +36,5 @@ void v4sf_fully_connected(float32 *inp, float32 *oup,
 	}
 	return;
 }
+
 #endif /* SET_GCC_BUILTIN_VEX */

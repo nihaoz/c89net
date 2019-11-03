@@ -55,12 +55,12 @@ channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p)
 					 __FILE__, __LINE__);
 		exit(0);
 	}
-	naive_conv_2d(inp->data, ch->data, inp->xsize, inp->ysize,
+	naive_conv_2d_float32(inp->data, ch->data, inp->xsize, inp->ysize,
 					s, s, p, filter->data, filter->xsize);
 	return ch;
 }
 
-void naive_conv_2d(float32 *inp, float32 *oup, int x, int y,
+void naive_conv_2d_float32(float32 *inp, float32 *oup, int x, int y,
 				int sx, int sy, int p, float32 *filter, int fw)
 {
 	int i, j, k, l;

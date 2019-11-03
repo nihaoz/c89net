@@ -8,7 +8,7 @@
 
 #include "data_layer.h"
 
-void naive_fully_connected(float32 *inp, float32 *oup,
+void naive_fully_connected_float32(float32 *inp, float32 *oup,
 					float32 *w, float32 *b, int iw, int ow);
 
 feature_map_t *fully_connected(feature_map_t *inp, cnn_para_t *w, cnn_para_t *b);
