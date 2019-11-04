@@ -32,9 +32,13 @@
 #define MEMMGR_REC_TYPE_FEATURE_MAP 10
 #define MEMMGR_REC_TYPE_CNN_PARA    11
 
-/* Memory manager record type abbreviations */
+/*
+ * Memory manager record type abbreviations
+ */
 #define MM_ABBR_FEATURE_MAP "fmap"
 #define MM_ABBR_CNN_PARA    "cnnp"
+
+#include <stdio.h>
 
 int memmgr_init(void);
 int memmgr_clear(void);
@@ -45,7 +49,9 @@ void *memmgr_get_record(int type, const char *name);
 
 void memmgr_del_record(int type, const char *name);
 
-void print_memmgr_info(void);
+void debug_fprint_memmgr_info(FILE *fp);
+
+void debug_fprint_memmgr_list(FILE *fp);
 
 #ifdef __cplusplus
 	}

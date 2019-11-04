@@ -22,30 +22,21 @@ int main(int argc, char const *argv[])
 	feature_map_t *inp = feature_map_by_channels(chs, 1, "input");
 	cnn_para_t *conv1_b = load_cnn_bias("./cnn/lenet/lenet-parameters/conv1_b.bin",
 								32, "conv1_b");
+
+	debug_fprint_feature_map_info(inp, stdout);
 	debug_fprint_cnn_parameters_info(conv1_b, stdout);
 
 	int stat = memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, inp);
-	printf("STAT = %d\n", stat);
 
-	print_memmgr_info();
 	memmgr_init();
 	stat = memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, inp);
 	stat = memmgr_add_record(MEMMGR_REC_TYPE_CNN_PARA, conv1_b);
-	printf("STAT = %d\n", stat);
-	print_memmgr_info();
 
-	debug_fprint_feature_map_info(inp, stdout);
+	/* memmgr_clear(); */
 
-	feature_map_t *find = memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, "input");
+	debug_fprint_memmgr_info(stdout);
 
-	debug_fprint_feature_map_info(find, stdout);
-
-	memmgr_del_record(MEMMGR_REC_TYPE_CNN_PARA, "conv1_b");
-
-	print_memmgr_info();
-	
-	debug_fprint_cnn_parameters_info((cnn_para_t*)memmgr_get_record(
-		MEMMGR_REC_TYPE_CNN_PARA, "conv1_b"), stdout);
+	debug_fprint_memmgr_list(stdout);
 
 	return 0;
 }

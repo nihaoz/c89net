@@ -217,7 +217,7 @@ void debug_fprint_feature_map_info(feature_map_t *l, FILE *fp)
 		fprintf(fp, "Layer name: %s\n", l->data->name);
 	else
 		fprintf(fp, "Layer name not set !\n");
-	fprintf(fp, "Size(X * Y * Z): %d * %d * %d\n", l->xsize, l->ysize, l->zsize);
+	fprintf(fp, "Size(X Y Z): %d %d %d\n", l->xsize, l->ysize, l->zsize);
 	return;
 }
 
@@ -231,7 +231,7 @@ void debug_fprint_cnn_parameters_info(cnn_para_t *l, FILE *fp)
 		fprintf(fp, "Layer name: %s\n", l->data->name);
 	else
 		fprintf(fp, "Layer name not set !\n");
-	fprintf(fp, "Size(X * Y * Z * W): %d * %d * %d * %d\n", 
+	fprintf(fp, "Size(X Y Z W): %d %d %d %d\n", 
 		l->xsize, l->ysize, l->zsize, l->wsize);
 	return;
 }

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,17 +45,39 @@ int memmgr_init(void)
 
 int memmgr_clear(void)
 {
-	if (global_memmgr_list) {
-		list_del(global_memmgr_list);
-		global_memmgr_list = NULL;
+	if (!global_memmgr_list)
+		return MEMMGR_STATE_OK;
+	void *pdata = NULL;
+	byte *found_rec = NULL;
+	uint id;
+	int i, type;
+	for (i = 0; i < global_memmgr_list->scale; ++i)
+	{
+		found_rec = list_get_record(global_memmgr_list, i);
+		if (found_rec) {
+			pdata = *((void**)(found_rec + (strlen(found_rec) + 1)));
+			sscanf(found_rec, "%d", &type);
+			switch (type) {
+				case MEMMGR_REC_TYPE_FEATURE_MAP:
+					free_feature_map((feature_map_t*)pdata);
+					break;
+				case MEMMGR_REC_TYPE_CNN_PARA:
+					free_cnn_parameters((cnn_para_t*)pdata);
+					break;
+				default:
+					break; /* Warning ...*/
+			}
+		}
 	}
+	list_del(global_memmgr_list);
+	global_memmgr_list = NULL;
 	return MEMMGR_STATE_OK;
 }
 
 #define __ADD_RECORD_PROC__(datatype) \
 	if (!((datatype*)(sp))->data->name)                        \
 		return MEMMGR_ERR_NONAME;                              \
-	sprintf(fullname, "%s:%s", MM_ABBR_FEATURE_MAP,            \
+	sprintf(fullname, "%d:%s", type,                           \
 			((datatype*)(sp))->data->name);                    \
 	stat = list_calc_hash_id(global_memmgr_list,               \
 			(byte*)fullname, strlen(fullname), 0, &id, NULL);  \
@@ -88,7 +111,7 @@ int memmgr_add_record(int type, void *sp)
 }
 
 #define __GET_RECORD_PROC__(datatype) \
-	sprintf(fullname, "%s:%s", MM_ABBR_FEATURE_MAP, name);     \
+	sprintf(fullname, "%d:%s", type, name);                    \
 	stat = list_search_record_hash_mod(global_memmgr_list,     \
 						fullname, strlen(fullname), 0, NULL,   \
 		_match_str, fullname, strlen(fullname), &id);          \
@@ -119,7 +142,7 @@ void *memmgr_get_record(int type, const char *name)
 }
 
 #define __DEL_RECORD_PROC__(datatype) \
-	sprintf(fullname, "%s:%s", MM_ABBR_FEATURE_MAP, name);     \
+	sprintf(fullname, "%d:%s", type, name);                    \
 	stat = list_search_record_hash_mod(global_memmgr_list,     \
 						fullname, strlen(fullname), 0, NULL,   \
 		_match_str, fullname, strlen(fullname), &id);          \
@@ -152,12 +175,36 @@ void memmgr_del_record(int type, const char *name)
 	return;
 }
 
-void print_memmgr_info(void)
+void debug_fprint_memmgr_info(FILE *fp)
 {
 	if (!global_memmgr_list) {
 		format_log(LOG_INFO, "Global memory manager not initialized");
 	} else {
 		format_log(LOG_INFO, "global_memmgr_list info:");
-		list_print_info(global_memmgr_list, FORMATLOG_FP);
+		list_print_info(global_memmgr_list, fp);
+	}
+}
+
+void debug_fprint_memmgr_list(FILE *fp)
+{
+	byte *found_rec = NULL;
+	uint id;
+	int i, type;
+	for (i = 0; i < global_memmgr_list->scale; ++i)
+	{
+		found_rec = list_get_record(global_memmgr_list, i);
+		if (found_rec) {
+			sscanf(found_rec, "%d", &type);
+			while (*(found_rec++) != ':');
+			switch (type) {
+				case MEMMGR_REC_TYPE_FEATURE_MAP:
+					fprintf(fp, "%s: \"%s\"\n", MM_ABBR_FEATURE_MAP, found_rec);
+					break;
+				case MEMMGR_REC_TYPE_CNN_PARA:
+					fprintf(fp, "%s: \"%s\"\n", MM_ABBR_CNN_PARA, found_rec);
+				default:
+					break; /* Warning ...*/
+			}
+		}
 	}
 }
