@@ -21,6 +21,9 @@ OPTM   = $(OPTM_A) $(OPTM_O)
 # Optional functions
 OPTFN  = -DSET_GCC_BUILTIN_VEX
 
+# Resource limitation
+RESLIM = # -DLESS_RESOURCE
+
 CFLAG = $(C89F) $(OMP) $(OPTM)
 
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
@@ -28,9 +31,9 @@ G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
 obj   = list.o image_util.o image_bmp.o data_util.o data_types.o conv2d.o \
 		spatial_conv.o activation.o data_layer.o pad.o pool.o debug_log.o \
-		fullyconn.o global_function_config.o vxsf_fullyconn.o
+		memmgr.o fullyconn.o global_function_config.o vxsf_fullyconn.o
 
-DEMO  =
+DEMO  = memmgr_test
 CNN   = lenet
 ALL   = $(DEMO) $(CNN)
 
@@ -40,11 +43,16 @@ demo: $(DEMO)
 
 cnn: $(CNN)
 
+# CNNs
 lenet: cnn/lenet/lenet.c $(obj)
 	$(cc) -o $(@) cnn/lenet/lenet.c $(obj) $(INC) $(CFLAG) $(LINK)
 
+# Simple demo
 matmul_test: demo/matmul_test.c $(obj)
 	$(cc) -o $(@) demo/matmul_test.c $(obj) $(INC) $(CFLAG) $(LINK)
+
+memmgr_test: demo/memmgr_test.c $(obj)
+	$(cc) -o $(@) demo/memmgr_test.c $(obj) $(INC) $(CFLAG) $(LINK)
 
 list.o: src/list.h src/list.c
 	$(cc) -c src/list.c $(INC) $(CFLAG) -Wno-unused-result
@@ -70,6 +78,8 @@ fullyconn.o: src/fullyconn.h src/fullyconn.c
 	$(cc) -c src/fullyconn.c $(INC) $(CFLAG)
 data_layer.o: src/data_layer.h src/data_layer.c
 	$(cc) -c src/data_layer.c $(INC) $(CFLAG)
+memmgr.o: src/memmgr.h src/memmgr.c
+	$(cc) -c src/memmgr.c $(INC) $(CFLAG)
 debug_log.o: src/debug_log.h src/debug_log.c
 	$(cc) -c src/debug_log.c $(INC) $(CFLAG)
 

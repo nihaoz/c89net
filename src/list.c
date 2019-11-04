@@ -20,7 +20,6 @@ void __________compile_time_test___________()
 	BUILD_BUG_ON(32 - LIST_INFO_LEN);
 }
 
-
 static uint _djb_hash(byte *s, uint len, uint seed)
 {
 	unsigned int hash = seed;
@@ -74,10 +73,11 @@ list_t *list_new_static(uint scale, uint blen)
 	SET_FLAG(list->flag, LIST_STATIC_MODE);
 	list->length = scale * blen;
 	list->mem = (byte*)malloc(list->length);
-	if (!list->mem)
-		list->status |= LIST_MALLOC_ERROR;
-	else
-		memset(list->mem, 0, list->length);
+	if (!list->mem) {
+		free(list);
+		return NULL;
+	}
+	memset(list->mem, 0, list->length);
 	list->blen = blen;
 	list->scale = scale;
 	list->counter = scale;
@@ -94,10 +94,11 @@ list_t *list_new_dynamic(uint scale)
 	memset(list, 0, sizeof(list_t));
 	SET_FLAG(list->flag, LIST_DYNAMIC_MODE);
 	list->index = (byte**)malloc(scale * sizeof(byte*));
-	if (!list->index)
-		list->status |= LIST_MALLOC_ERROR;
-	else
-		memset(list->index, 0, scale * sizeof(byte*));
+	if (!list->index) {
+		free(list);
+		return NULL;
+	}
+	memset(list->index, 0, scale * sizeof(byte*));
 	list->scale = scale;
 	return list;
 }
@@ -348,8 +349,7 @@ __status list_del_dynamic_record(list_t *list, uint id)
 		return OPS_BAD_ID;
 	if (list->index[id]) {
 		list->length -= sizeof(DynLenFlag);
-		list->length -=
-			list_get_dynamic_record_len(list->index[id]);
+		list->length -= *(DynLenFlag*)list->index[id];
 		list->counter--;
 		free(list->index[id]);
 		list->index[id] = NULL;
@@ -916,12 +916,12 @@ void list_print_info(list_t *list, FILE *stream)
 	else
 		fprintf(fp, "Not named list.\n");
 	if (TEST_FLAG(list->flag, LIST_STATIC_MODE))
-		fprintf(fp, "[MODE] = STATIC\n");
+		fprintf(fp, "[MODE]         = STATIC\n");
 	else
-		fprintf(fp, "[MODE] = DYNAMIC\n");
-	fprintf(fp, "[length] = %lld\n", list->length);
-	fprintf(fp, "[scale] = %d\n", list->scale);
-	fprintf(fp, "[record] = %d\n", list->counter);
+		fprintf(fp, "[MODE]         = DYNAMIC\n");
+	fprintf(fp, "[length]       = %lld\n", list->length);
+	fprintf(fp, "[scale]        = %d\n", list->scale);
+	fprintf(fp, "[record]       = %d\n", list->counter);
 	fprintf(fp, "[block length] = %d\n", list->blen);
 }
 
