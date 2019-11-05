@@ -11,11 +11,12 @@
 void naive_fully_connected_float32(float32 *inp, float32 *oup,
 					float32 *w, float32 *b, int iw, int ow);
 
-feature_map_t *fully_connected(feature_map_t *inp, cnn_para_t *w, cnn_para_t *b);
+feature_map_t *fully_connected(feature_map_t *inp,
+				cnn_para_t *w, cnn_para_t *b, const char *name);
 
 /* Test */
 feature_map_t *spatial_conv_fully_connected(feature_map_t *inp,
-									cnn_para_t *w, cnn_para_t *b);
+					cnn_para_t *w, cnn_para_t *b, const char *name);
 #ifdef __cplusplus
 	}
 #endif

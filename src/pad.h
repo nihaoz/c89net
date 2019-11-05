@@ -7,6 +7,7 @@
 
 #include "data_layer.h"
 
+#define PADDING_NAME_BUF_LEN 256
 /*
  * Default padding with 0
  */

@@ -30,6 +30,8 @@ int main(int argc, char const *argv[])
 
 	memmgr_init();
 	stat = memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, inp);
+	stat = memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, inp);
+	printf("Operation status %d\n", stat);
 	stat = memmgr_add_record(MEMMGR_REC_TYPE_CNN_PARA, conv1_b);
 
 	/* memmgr_clear(); */

@@ -24,7 +24,10 @@ OPTFN  = -DSET_GCC_BUILTIN_VEX
 # Resource limitation
 RESLIM = # -DLESS_RESOURCE
 
-CFLAG = $(C89F) $(OMP) $(OPTM)
+# Testing features
+TESTFN = -DENABLE_MEMMGR
+
+CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
 
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c

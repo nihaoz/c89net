@@ -1,5 +1,8 @@
 #include <stdlib.h>
 
+#ifdef ENABLE_MEMMGR
+	#include "memmgr.h"
+#endif
 #include "data_util.h"
 #include "pool.h"
 #include "list.h"
@@ -9,20 +12,31 @@ static float32 max(float32 a, float32 b)
 	return  a > b ? a : b;
 }
 
-feature_map_t *max_pool2_2(feature_map_t *l)
+feature_map_t *max_pool2_2(feature_map_t *l, const char *name)
 {
-	feature_map_t *pool = (feature_map_t*)malloc(sizeof(feature_map_t));
-	if (!pool)
-		return NULL;
-	pool->datatype = l->datatype;
-	pool->xsize = l->xsize >> 1;
-	pool->ysize = l->ysize >> 1;
-	pool->zsize = l->zsize;
-	pool->data  = list_new_static(pool->zsize,
-						sizeof(float32) * pool->xsize * pool->ysize);
-	if (!pool->data) {
-		free(pool);
-		return NULL;
+#ifdef ENABLE_MEMMGR
+	feature_map_t *pool = (feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+#else
+	feature_map_t *pool = NULL;
+#endif
+	if (!pool) {
+		pool = (feature_map_t*)malloc(sizeof(feature_map_t));
+		if (!pool)
+			return NULL;
+		pool->datatype = l->datatype;
+		pool->xsize = l->xsize >> 1;
+		pool->ysize = l->ysize >> 1;
+		pool->zsize = l->zsize;
+		pool->data  = list_new_static(pool->zsize,
+							sizeof(float32) * pool->xsize * pool->ysize);
+		if (!pool->data) {
+			free(pool);
+			return NULL;
+		}
+		list_set_name(pool->data, name);
+#ifdef ENABLE_MEMMGR
+		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, pool);
+#endif
 	}
 	int i, in_ch_size = l->xsize * l->ysize;
 	int out_ch_size   = pool->xsize * pool->ysize;

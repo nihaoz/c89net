@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef ENABLE_MEMMGR
+	#include "memmgr.h"
+#endif
 #include "data_layer.h"
 
 feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name)
@@ -71,20 +74,32 @@ int feature_map_modify_shape(feature_map_t *l, int x, int y, int z)
 	return 0;
 }
 
-feature_map_t *feature_map_flat(feature_map_t *l)
+feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 {
 	int l_size = l->xsize * l->ysize;
 	int data_c = l_size * l->zsize;
-	feature_map_t *flat = (feature_map_t*)malloc(sizeof(feature_map_t));
-	if (!flat)
-		return NULL;
-	flat->xsize = 1;
-	flat->ysize = 1;
-	flat->zsize = data_c;
-	flat->data  = list_new_static(data_c, sizeof(sizeof_datatype(l->datatype)));
-	if (!flat->data) {
-		free(flat);
-		return NULL;
+#ifdef ENABLE_MEMMGR
+	feature_map_t *flat =
+		(feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+#else
+	feature_map_t *flat = NULL;
+#endif
+	if (!flat) {
+		flat = (feature_map_t*)malloc(sizeof(feature_map_t));
+		if (!flat)
+			return NULL;
+		flat->xsize = 1;
+		flat->ysize = 1;
+		flat->zsize = data_c;
+		flat->data  = list_new_static(data_c, sizeof(sizeof_datatype(l->datatype)));
+		if (!flat->data) {
+			free(flat);
+			return NULL;
+		}
+		list_set_name(flat->data, name);
+#ifdef ENABLE_MEMMGR
+		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, flat);
+#endif
 	}
 	byte *p_dst = (byte*)flat->data->mem;
 	byte *p_src = (byte*)l->data->mem;

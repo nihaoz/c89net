@@ -12,7 +12,7 @@
  * generic max_pool
  * feature_map_t *max_pool(int sx, int y, int padding);
  */
-feature_map_t *max_pool2_2(feature_map_t *l);
+feature_map_t *max_pool2_2(feature_map_t *l, const char *name);
 
 void _max_pool2_2(float32 *inp, int x, int y, float32 *oup);
 

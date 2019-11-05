@@ -11,7 +11,7 @@
 #ifdef LESS_RESOURCE
 	#define MEMMGR_INIT_REC 512
 #else
-	#define MEMMGR_INIT_REC 2048
+	#define MEMMGR_INIT_REC 8192
 #endif
 
 #define MEMMGR_REC_NAME_BUF 256
@@ -24,10 +24,11 @@
 /* hash fx error on calc or search */
 #define MEMMGR_ERR_CHASH  5
 #define MEMMGR_ERR_SHASH  6
+#define MEMMGR_ERR_EXSIT  7
 /* data type not support */
-#define MEMMGR_ERR_DTYPE  7
+#define MEMMGR_ERR_DTYPE  8
 /* record name not set */
-#define MEMMGR_ERR_NONAME 8
+#define MEMMGR_ERR_NONAME 9
 
 #define MEMMGR_REC_TYPE_FEATURE_MAP 10
 #define MEMMGR_REC_TYPE_CNN_PARA    11

@@ -18,7 +18,7 @@ static byte *_make_rec(char *name, void *sp, int *reclen)
 	byte *rec = (byte*)malloc(*reclen);
 	if (!rec)
 		return NULL;
-	strcpy(rec, name);
+	strcpy((char*)rec, name);
 	memcpy(rec + (strlen(name) + 1), &sp, sizeof(void*));
 	return rec;
 }
@@ -55,8 +55,8 @@ int memmgr_clear(void)
 	{
 		found_rec = list_get_record(global_memmgr_list, i);
 		if (found_rec) {
-			pdata = *((void**)(found_rec + (strlen(found_rec) + 1)));
-			sscanf(found_rec, "%d", &type);
+			pdata = *((void**)(found_rec + (strlen((char*)found_rec) + 1)));
+			sscanf((char*)found_rec, "%d", &type);
 			switch (type) {
 				case MEMMGR_REC_TYPE_FEATURE_MAP:
 					free_feature_map((feature_map_t*)pdata);
@@ -79,6 +79,11 @@ int memmgr_clear(void)
 		return MEMMGR_ERR_NONAME;                              \
 	sprintf(fullname, "%d:%s", type,                           \
 			((datatype*)(sp))->data->name);                    \
+	stat = list_search_record_hash_mod(global_memmgr_list,     \
+				(byte*)fullname, strlen(fullname), 0, NULL,    \
+		_match_str, (byte*)fullname, strlen(fullname), &id);   \
+	if (!stat)                                                 \
+		return MEMMGR_ERR_EXSIT;                               \
 	stat = list_calc_hash_id(global_memmgr_list,               \
 			(byte*)fullname, strlen(fullname), 0, &id, NULL);  \
 	if (stat)                                                  \
@@ -113,8 +118,8 @@ int memmgr_add_record(int type, void *sp)
 #define __GET_RECORD_PROC__(datatype) \
 	sprintf(fullname, "%d:%s", type, name);                    \
 	stat = list_search_record_hash_mod(global_memmgr_list,     \
-						fullname, strlen(fullname), 0, NULL,   \
-		_match_str, fullname, strlen(fullname), &id);          \
+				(byte*)fullname, strlen(fullname), 0, NULL,    \
+		_match_str, (byte*)fullname, strlen(fullname), &id);   \
 	if (stat)                                                  \
 		return NULL;                                           \
 	rec = *((void**)(list_get_record(global_memmgr_list, id) + \
@@ -144,8 +149,8 @@ void *memmgr_get_record(int type, const char *name)
 #define __DEL_RECORD_PROC__(datatype) \
 	sprintf(fullname, "%d:%s", type, name);                    \
 	stat = list_search_record_hash_mod(global_memmgr_list,     \
-						fullname, strlen(fullname), 0, NULL,   \
-		_match_str, fullname, strlen(fullname), &id);          \
+				(byte*)fullname, strlen(fullname), 0, NULL,    \
+		_match_str, (byte*)fullname, strlen(fullname), &id);   \
 	if (stat)                                                  \
 		return;                                                \
 	rec = *((void**)(list_get_record(global_memmgr_list, id) + \
@@ -194,14 +199,14 @@ void debug_fprint_memmgr_list(FILE *fp)
 	{
 		found_rec = list_get_record(global_memmgr_list, i);
 		if (found_rec) {
-			sscanf(found_rec, "%d", &type);
+			sscanf((char*)found_rec, "%d", &type);
 			while (*(found_rec++) != ':');
 			switch (type) {
 				case MEMMGR_REC_TYPE_FEATURE_MAP:
-					fprintf(fp, "%s: \"%s\"\n", MM_ABBR_FEATURE_MAP, found_rec);
+					fprintf(fp, "[%04d]%s: \"%s\"\n", i, MM_ABBR_FEATURE_MAP, found_rec);
 					break;
 				case MEMMGR_REC_TYPE_CNN_PARA:
-					fprintf(fp, "%s: \"%s\"\n", MM_ABBR_CNN_PARA, found_rec);
+					fprintf(fp, "[%04d]%s: \"%s\"\n", i, MM_ABBR_CNN_PARA, found_rec);
 				default:
 					break; /* Warning ...*/
 			}

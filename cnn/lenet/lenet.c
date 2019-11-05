@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef ENABLE_MEMMGR
+	#include "memmgr.h"
+#endif
 #include "image_bmp.h"
 #include "data_layer.h"
 #include "spatial_conv.h"
@@ -56,6 +59,10 @@ int main(int argc, char const *argv[])
 	img = img_free_rgb(img);
 	channel_t *ch_gray = gray_to_channel_float32(img_gray, GRAY_TO_CHANNEL_MNIST);
 	img_gray = img_free_gray(img_gray);
+
+#ifdef ENABLE_MEMMGR 
+	memmgr_init();
+#endif
 
 	/* Load input layer */
 	channel_t *chs[] = {ch_gray};
@@ -134,37 +141,36 @@ int main(int argc, char const *argv[])
 	/*
 	 * L1 conv stride: 1 padding: 2
 	 */
-	l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2);
+	l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2, "conv1");
 	/*
 	 * L1 relu
 	 */
-	l1_conv_relu = activation_relu(l1_conv, 0);
+	l1_conv_relu = activation_relu(l1_conv, 1);
 	/*
 	 * L1 max pool 2 * 2
 	 */
-	l1_conv_pool = max_pool2_2(l1_conv_relu);
+	l1_conv_pool = max_pool2_2(l1_conv_relu, "pool1");
 	/*
 	 * L2 conv stride: 1 padding: 2
 	 */
-	l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2);
+	l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2, "conv2");
 	/*
 	 * L2 relu
 	 */
-	l2_conv_relu = activation_relu(l2_conv, 0);
+	l2_conv_relu = activation_relu(l2_conv, 1);
 	/*
 	 * L2 max pool 2 * 2
 	 */
-	l2_conv_pool = max_pool2_2(l2_conv_relu);
+	l2_conv_pool = max_pool2_2(l2_conv_relu, "pool2");
 	/*
 	 * Reshape l2_conv_pool layer for fully-connected layer
 	 */
-	l2_flat = feature_map_flat(l2_conv_pool);
+	l2_flat = feature_map_flat(l2_conv_pool, "flat");
 	/*
 	 * L fc1, by conv1_1 stride: 1 padding: 0
 	 */
 
-	format_log(LOG_INFO, "Computing finished!");
-	fc1 = fully_connected(l2_flat, fc1_w, fc1_b);
+	fc1 = fully_connected(l2_flat, fc1_w, fc1_b, "fc1");
 	/*
 	 * L fc1 relu
 	 */
@@ -172,11 +178,12 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
-	fc2 = fully_connected(fc1_relu, fc2_w, fc2_b);
+	fc2 = fully_connected(fc1_relu, fc2_w, fc2_b, "fc2");
 
 	/*
 	 * Output result...
 	 */
+	format_log(LOG_INFO, "Computing finished!");
 	float32 *p = (float32*)fc2->data->mem;
 	float32 max_value = 0;
 	int     max_index = 0;
@@ -192,5 +199,8 @@ int main(int argc, char const *argv[])
 	printf("MAX INDEX: \33[1;31m%d\33[0m, it's the prediction result of [%s]\n",
 				max_index, input_name);
 
+#ifdef ENABLE_MEMMGR
+	debug_fprint_memmgr_list(stdout);
+#endif
 	return 0;
 }
