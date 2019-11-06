@@ -145,7 +145,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L1 relu
 	 */
-	l1_conv_relu = activation_relu(l1_conv, 1);
+	l1_conv_relu = activation_relu(l1_conv);
 	/*
 	 * L1 max pool 2 * 2
 	 */
@@ -157,7 +157,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L2 relu
 	 */
-	l2_conv_relu = activation_relu(l2_conv, 1);
+	l2_conv_relu = activation_relu(l2_conv);
 	/*
 	 * L2 max pool 2 * 2
 	 */
@@ -174,7 +174,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc1 relu
 	 */
-	fc1_relu = activation_relu(fc1, 1);
+	fc1_relu = activation_relu(fc1);
 	/*
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */

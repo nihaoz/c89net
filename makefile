@@ -3,7 +3,7 @@
 # Have fun with Tiny C Compiler, disable Openmp and some other 
 # optional functions, since tcc doesn't support these features 
 # cc = tcc
-cc = g++
+cc = gcc
 
 # Openmp support
 OMP   = -DENABLE_OPENMP -fopenmp
