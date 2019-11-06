@@ -15,7 +15,7 @@ feature_map_t *fully_connected(feature_map_t *inp,
 				cnn_para_t *w, cnn_para_t *b, const char *name);
 
 /* Test */
-feature_map_t *spatial_conv_fully_connected(feature_map_t *inp,
+feature_map_t *spatial_conv2d_fully_connected(feature_map_t *inp,
 					cnn_para_t *w, cnn_para_t *b, const char *name);
 #ifdef __cplusplus
 	}

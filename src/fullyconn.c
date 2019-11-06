@@ -5,7 +5,7 @@
 #endif
 #include "data_util.h"
 #include "fullyconn.h"
-#include "spatial_conv.h"
+#include "spatial_conv2d.h"
 
 extern void (*_fully_connected_float32)(float32 *inp,
 		float32 *oup, float32 *w, float32 *b, int iw, int ow);
@@ -63,8 +63,8 @@ feature_map_t *fully_connected(feature_map_t *inp,
 	/* return spatial_conv(inp, w, b, 1, 0, name); */
 }
 
-feature_map_t *spatial_conv_fully_connected(feature_map_t *inp,
+feature_map_t *spatial_conv2d_fully_connected(feature_map_t *inp,
 					cnn_para_t *w, cnn_para_t *b, const char *name)
 {
-	return spatial_conv(inp, w, b, 1, 0, name);
+	return spatial_conv2d(inp, w, b, 1, 0, name);
 }

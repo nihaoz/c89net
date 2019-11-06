@@ -9,7 +9,7 @@
 	#include "memmgr.h"
 #endif
 #include "pad.h"
-#include "spatial_conv.h"
+#include "spatial_conv2d.h"
 
 /*
  * Ref: global_function_config.h
@@ -22,7 +22,7 @@
 extern void (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
 			int sx, int sy, int p, float32 *filter, int filter_width);
 
-feature_map_t *spatial_conv(feature_map_t *inp, cnn_para_t *kernel,
+feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 						cnn_para_t *bias, int s, int p, const char *name)
 {
 	/* Parameter check */

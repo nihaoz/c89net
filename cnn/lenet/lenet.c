@@ -7,7 +7,7 @@
 #endif
 #include "image_bmp.h"
 #include "data_layer.h"
-#include "spatial_conv.h"
+#include "spatial_conv2d.h"
 #include "fullyconn.h"
 #include "pad.h"
 #include "pool.h"
@@ -141,7 +141,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L1 conv stride: 1 padding: 2
 	 */
-	l1_conv = spatial_conv(inp, conv1_w, conv1_b, 1, 2, "conv1");
+	l1_conv = spatial_conv2d(inp, conv1_w, conv1_b, 1, 2, "conv1");
 	/*
 	 * L1 relu
 	 */
@@ -153,7 +153,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * L2 conv stride: 1 padding: 2
 	 */
-	l2_conv = spatial_conv(l1_conv_pool, conv2_w, conv2_b, 1, 2, "conv2");
+	l2_conv = spatial_conv2d(l1_conv_pool, conv2_w, conv2_b, 1, 2, "conv2");
 	/*
 	 * L2 relu
 	 */
