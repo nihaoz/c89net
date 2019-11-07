@@ -33,7 +33,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	}
 	/* Add padding */
 	char padding_name[PADDING_NAME_BUF_LEN];
-	sprintf(padding_name, "%s%s", name, SP_CONV_PAD_SURFFIX);
+	sprintf(padding_name, "%s%s", name, CONV_PAD_NAME_SURFFIX);
 	feature_map_t *inp_pad = pad_surround(inp, p, padding_name);
 	if (!inp_pad)
 		return NULL;
