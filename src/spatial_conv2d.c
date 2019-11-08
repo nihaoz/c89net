@@ -8,28 +8,44 @@
 #ifdef ENABLE_MEMMGR
 	#include "memmgr.h"
 #endif
+#include "debug_log.h"
 #include "pad.h"
 #include "spatial_conv2d.h"
 
 /*
  * Ref: global_function_config.h
- * void (*_conv_2d)(float32 *inp, float32 *oup, int x, int y,
- *			int sx, int sy, int p, float32 *filter, int filter_width);
+ * void (*_conv_2d)(void *inp, void *oup, int x, int y,
+ *			int sx, int sy, int p, void *filter, int filter_width);
  */
 
 /* #include "global_function_config.h" */
 
-extern void (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
-			int sx, int sy, int p, float32 *filter, int filter_width);
+extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
+			int sx, int sy, int p, void *filter, int filter_width);
+
+/* _conv_2d_handler for current processing datatype */
+static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
+			int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 						cnn_para_t *bias, int s, int p, const char *name)
 {
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
-		fprintf(stderr, "Conv parameter error %s: %d, input channel %d != \
-			kernel input channel %d \n", __FILE__, __LINE__, inp->zsize, kernel->zsize);
+		QUICK_LOG_ERR_DATATYPE((inp->zsize != kernel->zsize));
 		return NULL;
+	}
+	/* Datatype check */
+	if (inp->datatype != kernel->datatype) {
+		QUICK_LOG_ERR_DATATYPE((inp->datatype != kernel->datatype));
+		return NULL;
+	}
+	switch (inp->datatype) {
+		case DATATYPE_FLOAT32:
+			_conv_2d_handler = _conv_2d_float32;
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE(inp->datatype);
 	}
 	/* Add padding */
 	char padding_name[PADDING_NAME_BUF_LEN];
@@ -91,22 +107,22 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	memset(oup->data->mem, 0, oup->data->length);
 #endif
 #ifdef ENABLE_OPENMP
-#pragma omp parallel for private(i, j, k)
+	#pragma omp parallel for private(i, j, k)
 #endif
 	for (i = 0; i < kernel->wsize; ++i)
 	{
 		for (j = 0; j < kernel->zsize; ++j)
 		{
 #ifdef ENABLE_OPENMP
-			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_size),
+			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
 								omp_out_buf + omp_get_thread_num() * oup_ch_size,
 							inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(float32*)(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
+					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 #else
-			_conv_2d_float32((float32*)(inp_pad->data->mem + j * p_ch_mem_size),
+			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
 							omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(float32*)(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
+					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 
 #endif

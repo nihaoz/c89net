@@ -88,6 +88,7 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 		flat = (feature_map_t*)malloc(sizeof(feature_map_t));
 		if (!flat)
 			return NULL;
+		flat->datatype = l->datatype;
 		flat->xsize = 1;
 		flat->ysize = 1;
 		flat->zsize = data_c;
@@ -148,6 +149,7 @@ cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 		fclose(fp);
 		return NULL;
 	}
+	l->datatype = DATATYPE_FLOAT32;
 	l->type  = PARA_TYPE_KERNEL;
 	l->xsize = ch_x;
 	l->ysize = ch_y;
@@ -204,6 +206,7 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name)
 		fclose(fp);
 		return NULL;
 	}
+	l->datatype = DATATYPE_FLOAT32;
 	l->type  = PARA_TYPE_BIAS;
 	l->xsize = ch_x;
 	l->data  = list_new_static(ch_x, sizeof(float32));

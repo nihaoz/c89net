@@ -6,6 +6,13 @@
 
 #include "debug_log.h"
 
+static int error_action_flag = ERR_ACT_ABORT;
+
+void set_log_error_action(int act)
+{
+	error_action_flag = act;
+}
+
 const char *_log_clock_style_str(int logtype)
 {
 	switch (logtype) {
@@ -86,4 +93,16 @@ void format_log(int logtype, const char *fmt, ...)
 	fprintf(FORMATLOG_FP, "\n");
 	free(pf);
 	va_end(ap);
+	if (logtype == LOG_ERR) {
+		switch (error_action_flag) {
+			case ERR_ACT_ABORT:
+				exit(-1);
+				break;
+			case ERR_ACT_WARNING:
+				/* print warning info only */
+				break;
+			default:
+				return;
+		}
+	}
 }

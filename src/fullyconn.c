@@ -3,12 +3,16 @@
 #ifdef ENABLE_MEMMGR
 	#include "memmgr.h"
 #endif
+#include "debug_log.h"
 #include "data_util.h"
 #include "fullyconn.h"
 #include "spatial_conv2d.h"
 
-extern void (*_fully_connected_float32)(float32 *inp,
-		float32 *oup, float32 *w, float32 *b, int iw, int ow);
+extern void (*_fully_connected_float32)(void *inp,
+		void *oup, void *w, void *b, int iw, int ow);
+
+static void (*_fully_connected_handler)(void *inp,
+		void *oup, void *w, void *b, int iw, int ow);
 
 void naive_fully_connected_float32(float32 *inp, float32 *oup,
 					float32 *w, float32 *b, int iw, int ow)
@@ -32,6 +36,23 @@ void naive_fully_connected_float32(float32 *inp, float32 *oup,
 feature_map_t *fully_connected(feature_map_t *inp,
 				cnn_para_t *w, cnn_para_t *b, const char *name)
 {
+	/* Parameter check */
+	if (inp->zsize != w->zsize) {
+		QUICK_LOG_ERR_DATATYPE((inp->zsize != w->zsize));
+		return NULL;
+	}
+	/* Datatype check */
+	if (inp->datatype != w->datatype) {
+		QUICK_LOG_ERR_DATATYPE((inp->datatype != w->datatype));
+		return NULL;
+	}
+	switch (inp->datatype) {
+		case DATATYPE_FLOAT32:
+			_fully_connected_handler = _fully_connected_float32;
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+	}
 #ifdef ENABLE_MEMMGR
 	feature_map_t *oup =
 		(feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
@@ -56,9 +77,8 @@ feature_map_t *fully_connected(feature_map_t *inp,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, oup);
 #endif
 	}
-	_fully_connected_float32((float32*)inp->data->mem,
-				(float32*)oup->data->mem, (float32*)w->data->mem,
-			(float32*)b->data->mem, w->zsize, w->wsize);
+	_fully_connected_handler(inp->data->mem, oup->data->mem,
+				w->data->mem, b->data->mem, w->zsize, w->wsize);
 	return oup;
 	/* return spatial_conv(inp, w, b, 1, 0, name); */
 }
