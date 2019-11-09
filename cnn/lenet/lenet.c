@@ -201,6 +201,7 @@ int main(int argc, char const *argv[])
 
 #ifdef ENABLE_MEMMGR
 	debug_fprint_memmgr_list(stdout);
+	memmgr_clear();
 #endif
 	return 0;
 }

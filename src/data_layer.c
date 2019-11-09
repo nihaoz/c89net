@@ -31,7 +31,6 @@ feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name)
 	return l;
 }
 
-
 feature_map_t *feature_map_clone(feature_map_t *l, const char *name)
 {
 	feature_map_t *clone = (feature_map_t*)malloc(sizeof(feature_map_t));
