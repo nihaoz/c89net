@@ -3,7 +3,7 @@
 # Have fun with Tiny C Compiler, disable Openmp and some other 
 # optional functions, since tcc doesn't support these features 
 # cc = tcc
-cc = clang
+cc = gcc
 
 # Openmp support
 OMP   = -DENABLE_OPENMP -fopenmp
@@ -32,10 +32,10 @@ CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
-obj   = list.o image_util.o image_bmp.o data_util.o data_types.o conv2d.o \
-		spatial_conv2d.o depthwise_conv2d.o activation.o data_layer.o pad.o \
-		pool.o debug_log.o memmgr.o fullyconn.o global_function_config.o \
-		vxsf_fullyconn.o
+obj = list.o image_util.o image_bmp.o data_util.o data_types.o array_ops.o \
+	conv2d.o spatial_conv2d.o depthwise_conv2d.o activation.o data_layer.o \
+	pad.o pool.o debug_log.o memmgr.o fullyconn.o global_function_config.o \
+	vxsf_fullyconn.o
 
 DEMO  = memmgr_test
 CNN   = lenet
@@ -68,6 +68,8 @@ data_types.o: src/data_types.h src/data_types.c
 	$(cc) -c src/data_types.c $(INC) $(CFLAG)
 data_util.o: src/data_util.h src/data_util.c
 	$(cc) -c src/data_util.c $(INC) $(CFLAG)
+array_ops.o: src/array_ops.h src/array_ops.c
+	$(cc) -c src/array_ops.c $(INC) $(CFLAG)
 conv2d.o: src/conv2d.h src/conv2d.c
 	$(cc) -c src/conv2d.c $(INC) $(CFLAG)
 pad.o: src/pad.h src/pad.c

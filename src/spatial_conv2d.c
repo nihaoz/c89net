@@ -10,6 +10,7 @@
 #endif
 #include "debug_log.h"
 #include "pad.h"
+#include "array_ops.h"
 #include "spatial_conv2d.h"
 
 /*
@@ -115,13 +116,13 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		{
 #ifdef ENABLE_OPENMP
 			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
-								omp_out_buf + omp_get_thread_num() * oup_ch_size,
-							inp_pad->xsize, inp_pad->ysize, s, s, p, 
+							omp_out_buf + omp_get_thread_num() * oup_ch_size,
+						inp_pad->xsize, inp_pad->ysize, s, s, p, 
 					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 #else
 			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
-							omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
+						omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
 					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
 				kernel->xsize);
 
@@ -147,10 +148,8 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		float32 *p_bias = bias_from_cnn_parameters(bias);
 		for (i = 0; i < kernel->wsize; ++i)
 		{
-			for (k = 0; k < oup_ch_size; ++k)
-			{
-				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) += p_bias[i];
-			}
+			add_to_array(oup->data->mem + i * o_ch_mem_size,
+				oup_ch_size, &p_bias[i], DATATYPE_FLOAT32);
 		}
 	}
 #ifndef ENABLE_MEMMGR
