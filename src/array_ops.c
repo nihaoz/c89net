@@ -3,9 +3,15 @@
 #include "array_ops.h"
 
 #define ELEM_OPS_ON_ARRAY(op, elem, arr, arrlen, datatype)        \
-	for (i = 0; i < arrlen; i++)                              \
+	for (i = 0; i < arrlen; ++i)                              \
 	{                                                         \
 		*((datatype*)arr + i) op ## = *(datatype*)elem;   \
+	}
+
+#define ARRAY_SUM(arr, arrlen, datatype, sum)               \
+	for (i = 0; i < arrlen; ++i)                        \
+	{                                                   \
+		*(datatype*)sum += *((datatype*)arr + i);   \
 	}
 
 void add_to_array(void *arr, int arrlen, void *x, int dt)
@@ -51,6 +57,61 @@ void mul_to_array(void *arr, int arrlen, void *x, int dt)
 			break;
 		case DATATYPE_INT64:
 			ELEM_OPS_ON_ARRAY(*, x, arr, arrlen, int64);
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+}
+
+void array_sum(void *arr, int arrlen, void *x, int dt)
+{
+	int i; /* for C89 style */
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ARRAY_SUM(arr, arrlen, float32, x);
+			break;
+		case DATATYPE_FLOAT64:
+			ARRAY_SUM(arr, arrlen, float64, x);
+			break;
+		case DATATYPE_INT16:
+			ARRAY_SUM(arr, arrlen, int16, x);
+			break;
+		case DATATYPE_INT32:
+			ARRAY_SUM(arr, arrlen, int32, x);
+			break;
+		case DATATYPE_INT64:
+			ARRAY_SUM(arr, arrlen, int64, x);
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+}
+
+void array_mean(void *arr, int arrlen, void *x, int dt)
+{
+	int i; /* for C89 style */
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ARRAY_SUM(arr, arrlen, float32, x);
+			*(float32*)x /= arrlen;
+			break;
+		case DATATYPE_FLOAT64:
+			ARRAY_SUM(arr, arrlen, float64, x);
+			*(float64*)x /= arrlen;
+			break;
+		case DATATYPE_INT16:
+			ARRAY_SUM(arr, arrlen, int16, x);
+			*(int16*)x /= arrlen;
+			break;
+		case DATATYPE_INT32:
+			ARRAY_SUM(arr, arrlen, int32, x);
+			*(int32*)x /= arrlen;
+			break;
+		case DATATYPE_INT64:
+			ARRAY_SUM(arr, arrlen, int64, x);
+			*(int64*)x /= arrlen;
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
