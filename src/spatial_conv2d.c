@@ -10,7 +10,7 @@
 #endif
 #include "debug_log.h"
 #include "pad.h"
-#include "array_ops.h"
+#include "fmap_ops.h"
 #include "spatial_conv2d.h"
 
 /*
@@ -145,12 +145,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 #endif
 		return oup;
 	} else {
-		float32 *p_bias = bias_from_cnn_parameters(bias);
-		for (i = 0; i < kernel->wsize; ++i)
-		{
-			add_to_array(oup->data->mem + i * o_ch_mem_size,
-				oup_ch_size, &p_bias[i], DATATYPE_FLOAT32);
-		}
+		oup = feature_map_bias(oup, bias);
 	}
 #ifndef ENABLE_MEMMGR
 	free_feature_map(inp_pad);
