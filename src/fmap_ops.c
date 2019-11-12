@@ -6,7 +6,7 @@
 #include "fmap_ops.h"
 
 #define BIAS_OPS_BY_DATATYPE(datatype)                                  \
-for (i = 0; i < bias->xsize; ++i)                                       \
+for (i = 0; i < bias->zsize; ++i)                                       \
 {                                                                       \
 	for (j = 0; j < ch_size; ++j)                                   \
 	{                                                               \
@@ -19,8 +19,8 @@ for (i = 0; i < bias->xsize; ++i)                                       \
 feature_map_t *feature_map_bias(feature_map_t *inp, cnn_para_t *bias)
 {
 	/* Parameter check */
-	if (inp->zsize != bias->xsize) {
-		QUICK_LOG_ERR_DATATYPE((inp->zsize != bias->xsize));
+	if (inp->zsize != bias->zsize) {
+		QUICK_LOG_ERR_DATATYPE((inp->zsize != bias->zsize));
 		return NULL;
 	}
 	/* Datatype check */

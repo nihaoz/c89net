@@ -5,6 +5,7 @@
 #ifdef ENABLE_MEMMGR
 	#include "memmgr.h"
 #endif
+#include "debug_log.h"
 #include "data_layer.h"
 
 feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name)
@@ -138,6 +139,8 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l)
 cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 				int ch_x, int ch_y, int ch_i, int ch_o, const char *name)
 {
+	format_log(LOG_WARN,"load_cnn_conv2d_kernel can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
@@ -194,8 +197,10 @@ float32 *bias_from_cnn_parameters(cnn_para_t *l)
 	return p;
 }
 
-cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name)
+cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
 {
+	format_log(LOG_WARN,"load_cnn_bias can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
@@ -207,8 +212,10 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name)
 	}
 	l->datatype = DATATYPE_FLOAT32;
 	l->type  = PARA_TYPE_BIAS;
-	l->xsize = ch_x;
-	l->data  = list_new_static(ch_x, sizeof(float32));
+	l->xsize = 1;
+	l->ysize = 1;
+	l->zsize = ch_z;
+	l->data  = list_new_static(ch_z, sizeof(float32));
 	if (!l->data) {
 		fclose(fp);
 		free(l);
@@ -217,7 +224,7 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name)
 	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++, (byte*)&para, sizeof(float32));
-	if (counter_chk != ch_x) {
+	if (counter_chk != ch_z) {
 		fclose(fp);
 		free_cnn_parameters(l);
 		return NULL;

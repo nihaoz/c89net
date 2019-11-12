@@ -9,6 +9,8 @@
 
 #define PARA_TYPE_KERNEL 0
 #define PARA_TYPE_BIAS   1
+/* Tensorflow Batch Normalization */
+#define PARA_TYPE_TF_BN  2
 
 #include <stdio.h>
 
