@@ -9,8 +9,10 @@
 
 #define PARA_TYPE_KERNEL 0
 #define PARA_TYPE_BIAS   1
-/* Tensorflow Batch Normalization */
-#define PARA_TYPE_TF_BN  2
+/* Batch Normalization */
+#define PARA_TYPE_BN     2
+
+#define PARA_BN_CHK 5
 
 #include <stdio.h>
 
@@ -29,12 +31,23 @@ typedef struct {
 } feature_map_t;
 
 /*
- * Conv 2-D kernel:
+ * (Spatial/Depthwise)Conv 2-D kernel:
  * xsize : kernel x-size
  * ysize : kernel y-size
  * zsize : kernel input channels
- * wsize : kernel output channels
+ * wsize : kernel output channels(avoid for Depthwise conv2d)
+ * ----------------------------------------------------------
+ *     Batch Normalization Parameters
+ * | gamma | beta | mean | var | epsilon |
+ *
  */
+
+#define BN_OFFSET_GAMMA   0
+#define BN_OFFSET_BETA    1
+#define BN_OFFSET_MEAN    2
+#define BN_OFFSET_VAR     3
+#define BN_OFFSET_EPSILON 4
+
 typedef struct {
 	list_t *data;
 	int type;
@@ -68,6 +81,8 @@ cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 				int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
 
 cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name);
+
+cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name);
 
 float32 *bias_from_cnn_parameters(cnn_para_t *l);
 

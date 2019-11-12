@@ -1,9 +1,9 @@
 # Using clang for higher performance
-cc = clang
+# cc = clang
 # Have fun with Tiny C Compiler, disable Openmp and some other 
 # optional functions, since tcc doesn't support these features 
 # cc = tcc
-# cc = gcc
+cc = gcc
 
 # Openmp support
 OMP   = -DENABLE_OPENMP -fopenmp
@@ -32,10 +32,10 @@ CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
-obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o \
-	fmap_ops.o conv2d.o spatial_conv2d.o depthwise_conv2d.o activation.o \
-	data_layer.o pad.o pool.o debug_log.o memmgr.o fullyconn.o list.o \
-	global_function_config.o vxsf_fullyconn.o 
+obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o\
+	fmap_ops.o conv2d.o spatial_conv2d.o depthwise_conv2d.o memmgr.o \
+	activation.o normalization.o data_layer.o pad.o pool.o debug_log.o \
+	fullyconn.o list.o global_function_config.o vxsf_fullyconn.o 
 
 DEMO  = memmgr_test
 CNN   = lenet
@@ -80,6 +80,8 @@ pool.o: src/pool.h src/pool.c
 	$(cc) -c src/pool.c $(INC) $(CFLAG)
 activation.o: src/activation.h src/activation.c
 	$(cc) -c src/activation.c $(INC) $(CFLAG)
+normalization.o: src/normalization.h src/normalization.c
+	$(cc) -c src/normalization.c $(INC) $(CFLAG)
 spatial_conv2d.o: src/spatial_conv2d.h src/spatial_conv2d.c
 	$(cc) -c src/spatial_conv2d.c $(INC) $(CFLAG)
 depthwise_conv2d.o: src/depthwise_conv2d.h src/depthwise_conv2d.c

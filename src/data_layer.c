@@ -234,6 +234,41 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
 	return l;
 }
 
+cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name)
+{
+	format_log(LOG_WARN,"load_cnn_batch_norm can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
+	FILE *fp = fopen(filename, "rb");
+	if (!fp)
+		return NULL;
+	int counter_chk = 0;
+	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
+	if (!l) {
+		fclose(fp);
+		return NULL;
+	}
+	l->datatype = DATATYPE_FLOAT32;
+	l->type  = PARA_TYPE_BN;
+	l->xsize = PARA_BN_CHK;
+	l->data  = list_new_static(PARA_BN_CHK, sizeof(float32));
+	if (!l->data) {
+		fclose(fp);
+		free(l);
+		return NULL;
+	}
+	float32 para;
+	while (fread(&para, sizeof(float32), 1, fp))
+		list_set_record(l->data, counter_chk++, (byte*)&para, sizeof(float32));
+	if (counter_chk != PARA_BN_CHK) {
+		fclose(fp);
+		free_cnn_parameters(l);
+		return NULL;
+	}
+	fclose(fp);
+	list_set_name(l->data, name);
+	return l;	
+}
+
 void debug_fprint_feature_map_info(feature_map_t *l, FILE *fp)
 {
 	fprintf(fp, "Data layer info: \n");

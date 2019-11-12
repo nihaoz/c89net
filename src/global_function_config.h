@@ -10,9 +10,18 @@
 #endif
 
 /*
+ * Set implemention for _batch_norm_float32
+ * Default:(go to the end of this segment)
+ * naive_fully_connected, Ref: normalization.h
+ */
+#include "normalization.h"
+void (*_batch_norm_float32)(float32 *inp, int len, float32 *bnarg) = \
+	naive_batch_norm_float32;
+
+/*
  * Set implemention for _conv_2d_float32
  * Default:(go to the end of this segment)
- * naive_conv_2d, Ref: conv2d.h
+ * naive_batch_norm_float32, Ref: conv2d.h
  */
 #include "conv2d.h"
 
