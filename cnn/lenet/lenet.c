@@ -78,29 +78,29 @@ int main(int argc, char const *argv[])
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_w");
 	set_string_buffer_2(parameters_path, "conv1_w.bin")
 	cnn_para_t *conv1_w = load_cnn_conv2d_kernel(
-										global_string_buffer,
-								5, 5, 1, 32, "conv1_w");
+					global_string_buffer,
+					5, 5, 1, 32, "conv1_w");
 
 	/* Load LeNet L1 conv b */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
 	set_string_buffer_2(parameters_path, "conv2_w.bin")
 	cnn_para_t *conv1_b = load_cnn_bias(
-								global_string_buffer,
-								32, "conv1_b");
+					global_string_buffer,
+					32, "conv1_b");
 
 	/* Load LeNet L2 conv w */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_w");
 	set_string_buffer_2(parameters_path, "conv2_w.bin");
 	cnn_para_t *conv2_w = load_cnn_conv2d_kernel(
-										global_string_buffer,
-								5, 5, 32, 64, "conv2_w");
+					global_string_buffer,
+					5, 5, 32, 64, "conv2_w");
 
 	/* Load LeNet L2 conv b */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv2_b");
 	set_string_buffer_2(parameters_path, "conv2_b.bin");
 	cnn_para_t *conv2_b = load_cnn_bias(
-								global_string_buffer,
-								64, "conv2_b");
+					global_string_buffer,
+					64, "conv2_b");
 
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_w");
 	/* Load LeNet FC1 w */
@@ -109,29 +109,29 @@ int main(int argc, char const *argv[])
 	 */
 	set_string_buffer_2(parameters_path, "fc1_w.bin");
 	cnn_para_t *fc1_w = load_cnn_conv2d_kernel(
-									global_string_buffer,
-								1, 1, 3136, 1024, "fc1_w");
+					global_string_buffer,
+					1, 1, 3136, 1024, "fc1_w");
 
 	/* Load LeNet FC1 b */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc1_b");
 	set_string_buffer_2(parameters_path, "fc1_b.bin");
 	cnn_para_t *fc1_b = load_cnn_bias(
-									global_string_buffer,
-								1024, "fc1_b");
+					global_string_buffer,
+					1024, "fc1_b");
 
 	/* Load LeNet FC2 w */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_w");
 	set_string_buffer_2(parameters_path, "fc2_w.bin");
 	cnn_para_t *fc2_w = load_cnn_conv2d_kernel(
-									global_string_buffer,
-								1, 1, 1024, 10, "fc2_w");
+					global_string_buffer,
+					1, 1, 1024, 10, "fc2_w");
 
 	/* Load LeNet FC2 b */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc2_b");
 	set_string_buffer_2(parameters_path, "fc2_b.bin");
 	cnn_para_t *fc2_b = load_cnn_bias(
-									global_string_buffer,
-								10, "fc2_b");
+					global_string_buffer,
+					10, "fc2_b");
 
 	format_log(LOG_INFO, "Loading LeNet parameters finished");
 

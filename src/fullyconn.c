@@ -15,7 +15,7 @@ static void (*_fully_connected_handler)(void *inp,
 		void *oup, void *w, void *b, int iw, int ow);
 
 void naive_fully_connected_float32(float32 *inp, float32 *oup,
-					float32 *w, float32 *b, int iw, int ow)
+			float32 *w, float32 *b, int iw, int ow)
 {
 	int i, j;
 #ifdef ENABLE_OPENMP
@@ -34,7 +34,7 @@ void naive_fully_connected_float32(float32 *inp, float32 *oup,
 }
 
 feature_map_t *fully_connected(feature_map_t *inp,
-				cnn_para_t *w, cnn_para_t *b, const char *name)
+		cnn_para_t *w, cnn_para_t *b, const char *name)
 {
 	/* Parameter check */
 	if (inp->zsize != w->zsize) {
@@ -55,7 +55,8 @@ feature_map_t *fully_connected(feature_map_t *inp,
 	}
 #ifdef ENABLE_MEMMGR
 	feature_map_t *oup =
-		(feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+		(feature_map_t*)
+			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #else
 	feature_map_t *oup = NULL;
 #endif
@@ -78,13 +79,13 @@ feature_map_t *fully_connected(feature_map_t *inp,
 #endif
 	}
 	_fully_connected_handler(inp->data->mem, oup->data->mem,
-				w->data->mem, b->data->mem, w->zsize, w->wsize);
+		w->data->mem, b->data->mem, w->zsize, w->wsize);
 	return oup;
 	/* return spatial_conv(inp, w, b, 1, 0, name); */
 }
 
 feature_map_t *spatial_conv2d_fully_connected(feature_map_t *inp,
-					cnn_para_t *w, cnn_para_t *b, const char *name)
+			cnn_para_t *w, cnn_para_t *b, const char *name)
 {
 	return spatial_conv2d(inp, w, b, 1, 0, name);
 }

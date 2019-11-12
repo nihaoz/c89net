@@ -130,9 +130,12 @@ int dump_rgb_to_text(rgb_obj *rgb, const char* filename, int format)
 	{
 		for (j = 0; j < rgb->xsize; ++j)
 		{
-			fprintf(fp, _pxl_print_format[format], *(rgb->data + i * rgb->xsize + j + 0));
-			fprintf(fp, _pxl_print_format[format], *(rgb->data + i * rgb->xsize + j + 1));
-			fprintf(fp, _pxl_print_format[format], *(rgb->data + i * rgb->xsize + j + 2));
+			fprintf(fp, _pxl_print_format[format],
+				*(rgb->data + i * rgb->xsize + j + 0));
+			fprintf(fp, _pxl_print_format[format],
+				*(rgb->data + i * rgb->xsize + j + 1));
+			fprintf(fp, _pxl_print_format[format],
+				*(rgb->data + i * rgb->xsize + j + 2));
 		}
 	}
 	fclose(fp);
@@ -149,7 +152,8 @@ int dump_gray_to_text(gray_obj* gray, const char* filename, int format)
 	{
 		for (j = 0; j < gray->xsize; ++j)
 		{
-			fprintf(fp, _pxl_print_format[format], *(gray->data + i * gray->xsize + j));
+			fprintf(fp, _pxl_print_format[format],
+				*(gray->data + i * gray->xsize + j));
 		}
 	}
 	fclose(fp);

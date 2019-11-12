@@ -18,7 +18,7 @@ void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 	for (i = 0; i < len; ++i)
 	{
 		*(inp + i) = (gamma * 
-				(*(inp + i) - mean) / sqrt(var + epsilon)) 
+				(*(inp + i) - mean) / sqrt(var + epsilon))
 			+ beta;
 	}
 	return;

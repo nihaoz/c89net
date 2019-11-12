@@ -74,12 +74,16 @@ channel_t *gray_to_channel_float32(gray_obj *gray, int mod)
 		{
 			switch (mod) {
 				case GRAY_TO_CHANNEL_MNIST:
-					ch->data[i * ch->xsize + j] = (float32)gray->data[i * gray->xsize + j];
+					ch->data[i * ch->xsize + j] =
+						(float32)gray->data
+							[i * gray->xsize + j];
 					ch->data[i * ch->xsize + j] /= 255;
 					break;
 				case GRAY_TO_CHANNEL_COMMON:
 				default:
-					ch->data[i * ch->xsize + j] = (float32)gray->data[i * gray->xsize + j];
+					ch->data[i * ch->xsize + j] =
+						(float32)gray->data
+							[i * gray->xsize + j];
 					ch->data[i * ch->xsize + j] /= 255;
 					ch->data[i * ch->xsize + j] -= 0.5;
 					ch->data[i * ch->xsize + j] *= 2.0;
@@ -98,7 +102,8 @@ channel_t *clone_channel_float32(channel_t *ch)
 	clone->datatype = DATATYPE_FLOAT32;
 	clone->xsize = ch->xsize;
 	clone->ysize = ch->ysize;
-	clone->data  = (float32*)malloc(sizeof(float32) * clone->xsize * clone->ysize);
+	clone->data  = (float32*)
+		malloc(clone->xsize * clone->ysize * sizeof(float32));
 	if (!clone->data) {
 		free(clone);
 		return NULL;
@@ -108,12 +113,12 @@ channel_t *clone_channel_float32(channel_t *ch)
 	{
 		for (j = 0; j < clone->xsize; ++j)
 		{
-			clone->data[i * clone->xsize + j] = ch->data[i * ch->xsize + j];
+			clone->data[i * clone->xsize + j] = 
+					ch->data[i * ch->xsize + j];
 		}
 	}
 	return clone;
 }
-
 
 channel_t *channel_norm_float32(channel_t *ch, float32 l, float32 r, int f)
 {
@@ -168,16 +173,19 @@ gray_obj *normalized_channel_float32_to_gray(channel_t *ch)
 			t /= 2.0;
 			t *= 255;
 			#ifdef CONFIG_STD_C89
-				gray->data[i * gray->xsize + j] = (byte)_round_c89(t);
+				gray->data[i * gray->xsize + j] =
+							(byte)_round_c89(t);
 			#else
-				gray->data[i * gray->xsize + j] = (byte)round(t);
+				gray->data[i * gray->xsize + j] =
+							(byte)round(t);
 			#endif
 		}
 	}
 	return gray;
 }
 
-int channel_float32_dump_to_text(channel_t *ch, const char* filename, int format)
+int channel_float32_dump_to_text(channel_t *ch,
+		const char* filename, int format)
 {
 	FILE *fp = fopen(filename, "w+");
 	if (!fp)
@@ -187,7 +195,8 @@ int channel_float32_dump_to_text(channel_t *ch, const char* filename, int format
 	{
 		for (j = 0; j < ch->xsize; ++j)
 		{
-			fprintf(fp, _elem_print_format[format], *(ch->data + i * ch->xsize + j));
+			fprintf(fp, _elem_print_format[format],
+				*(ch->data + i * ch->xsize + j));
 		}
 	}
 	fclose(fp);
@@ -210,7 +219,8 @@ int channel_float32_add(channel_t *dst, channel_t *src)
 	{
 		for (j = 0; j < dst->xsize; ++j)
 		{
-			dst->data[i * dst->xsize + j] += src->data[i * src->xsize + j];
+			dst->data[i * dst->xsize + j] +=
+				src->data[i * src->xsize + j];
 		}
 	}
 	return 0;

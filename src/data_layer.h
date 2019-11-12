@@ -58,7 +58,8 @@ typedef struct {
 	int wsize;
 } cnn_para_t;
 
-feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name);
+feature_map_t *feature_map_by_channels(channel_t **chs,
+				int n, const char *name);
 
 /* feature_map_t *feature_map_serialized(int data_type, ...); */
 
@@ -78,7 +79,7 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l);
 
 /* Testing functions */
 cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
-				int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
+		int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
 
 cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name);
 

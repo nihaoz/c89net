@@ -14,7 +14,7 @@ static float32 _v4sf_sum(v4sf vf)
 }
 
 void v4sf_fully_connected_float32(float32 *inp, float32 *oup,
-					float32 *w, float32 *b, int iw, int ow)
+			float32 *w, float32 *b, int iw, int ow)
 {
 	int i, j;
 #ifdef ENABLE_OPENMP

@@ -25,8 +25,9 @@ feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name)
 	}
 	for (i = 0; i < n; ++i)
 	{
-		memcpy(l->data->mem + i * sizeof_datatype(l->datatype) * ch_size,
-				chs[i]->data,  sizeof_datatype(l->datatype) * ch_size);
+		memcpy(l->data->mem + 
+			i * sizeof_datatype(l->datatype) * ch_size,
+		chs[i]->data,  sizeof_datatype(l->datatype) * ch_size);
 	}
 	list_set_name(l->data, name);
 	return l;
@@ -80,7 +81,8 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 	int data_c = l_size * l->zsize;
 #ifdef ENABLE_MEMMGR
 	feature_map_t *flat =
-		(feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+		(feature_map_t*)
+		memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #else
 	feature_map_t *flat = NULL;
 #endif
@@ -92,7 +94,8 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 		flat->xsize = 1;
 		flat->ysize = 1;
 		flat->zsize = data_c;
-		flat->data  = list_new_static(data_c, sizeof(sizeof_datatype(l->datatype)));
+		flat->data  = list_new_static(data_c,
+				sizeof(sizeof_datatype(l->datatype)));
 		if (!flat->data) {
 			free(flat);
 			return NULL;
@@ -110,7 +113,8 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 		for (j = 0; j < l->zsize; ++j)
 		{
 			memcpy((p_dst + (i * l->zsize + j) * unit_len),
-				(p_src + (j * l_size + i) * unit_len), unit_len);
+				(p_src + (j * l_size + i) * unit_len),
+				unit_len);
 		}
 	}
 	return flat;
@@ -136,8 +140,8 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l)
 	return NULL;
 }
 
-cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
-				int ch_x, int ch_y, int ch_i, int ch_o, const char *name)
+cnn_para_t *load_cnn_conv2d_kernel(const char *filename, 
+	int ch_x, int ch_y, int ch_i, int ch_o, const char *name)
 {
 	format_log(LOG_WARN,"load_cnn_conv2d_kernel can only load little-endian float32 stream file %s: %d",\
 						 __FILE__, __LINE__);
@@ -165,7 +169,8 @@ cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 	}
 	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
-		list_set_record(l->data, counter_chk++, (byte*)&para, sizeof(float32));
+		list_set_record(l->data, counter_chk++,
+			(byte*)&para, sizeof(float32));
 	if (counter_chk != para_sum) {
 		fclose(fp);
 		free_cnn_parameters(l);
@@ -223,7 +228,8 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
 	}
 	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
-		list_set_record(l->data, counter_chk++, (byte*)&para, sizeof(float32));
+		list_set_record(l->data, counter_chk++,
+			(byte*)&para, sizeof(float32));
 	if (counter_chk != ch_z) {
 		fclose(fp);
 		free_cnn_parameters(l);
@@ -258,7 +264,8 @@ cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name)
 	}
 	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
-		list_set_record(l->data, counter_chk++, (byte*)&para, sizeof(float32));
+		list_set_record(l->data, counter_chk++,
+			(byte*)&para, sizeof(float32));
 	if (counter_chk != PARA_BN_CHK) {
 		fclose(fp);
 		free_cnn_parameters(l);
@@ -276,7 +283,8 @@ void debug_fprint_feature_map_info(feature_map_t *l, FILE *fp)
 		fprintf(fp, "Layer name: %s\n", l->data->name);
 	else
 		fprintf(fp, "Layer name not set !\n");
-	fprintf(fp, "Size(X Y Z): %d %d %d\n", l->xsize, l->ysize, l->zsize);
+	fprintf(fp, "Size(X Y Z): %d %d %d\n",
+		l->xsize, l->ysize, l->zsize);
 	return;
 }
 

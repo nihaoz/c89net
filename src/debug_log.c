@@ -65,7 +65,7 @@ void format_log(int logtype, const char *fmt, ...)
 	strcpy(f, fmt);
 	/* fprintf(FORMATLOG_FP, "[%ld:%ld] : ", t, clk); */
 	fprintf(FORMATLOG_FP, "[%s%08ld\033[0m]: ",
-					_log_clock_style_str(logtype), clk);
+			_log_clock_style_str(logtype), clk);
 	va_start(ap, fmt);
 	n = _account_symbol(f, '%');
 	p = _find_symbol(f, '%');

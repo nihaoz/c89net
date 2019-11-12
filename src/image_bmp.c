@@ -84,7 +84,7 @@ int img_save_gray_as_rgb_bmp(gray_obj *gray, const char *filename)
 	rgb_obj *tmp = img_new_rgb(gray->xsize, gray->ysize, 0);
 
 	img_rgb_mix(tmp->data, gray->xsize * gray->ysize,
-						gray->data, gray->data, gray->data);
+					gray->data, gray->data, gray->data);
 	img_save_rgb_bmp(tmp, filename);
 	img_free_rgb(tmp);
 	return 0;

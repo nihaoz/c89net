@@ -29,7 +29,7 @@ static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
 			int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
-						cnn_para_t *bias, int s, int p, const char *name)
+			cnn_para_t *bias, int s, int p, const char *name)
 {
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
@@ -55,7 +55,9 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	if (!inp_pad)
 		return NULL;
 #ifdef ENABLE_MEMMGR
-	feature_map_t *oup = (feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+	feature_map_t *oup =
+		(feature_map_t*)
+			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #else
 	feature_map_t *oup = NULL;
 #endif
@@ -68,10 +70,13 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			return NULL;
 		}
 		oup->datatype = inp->datatype;
-		oup->xsize = conv_2d_size_calc(inp->xsize, kernel->xsize, s, p);
-		oup->ysize = conv_2d_size_calc(inp->ysize, kernel->ysize, s, p);
+		oup->xsize = conv_2d_size_calc(inp->xsize,
+					kernel->xsize, s, p);
+		oup->ysize = conv_2d_size_calc(inp->ysize,
+					kernel->ysize, s, p);
 		oup->zsize = kernel->wsize;
-		oup->data  = list_new_static(kernel->wsize, sizeof(float32) * oup->xsize * oup->ysize);
+		oup->data  = list_new_static(kernel->wsize,
+				sizeof(float32) * oup->xsize * oup->ysize);
 		if (!oup->data) {
 			free(oup);
 #ifndef ENABLE_MEMMGR
@@ -86,16 +91,17 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	}
 	int oup_ch_size = oup->xsize * oup->ysize;
 	int p_ch_mem_size = inp_pad->xsize * inp_pad->ysize * sizeof(float32);
-	int o_ch_mem_size = oup->xsize * oup->ysize * sizeof(float32);
-	int k_mem_size    = kernel->xsize * kernel->ysize * kernel->zsize * sizeof(float32);
+	int o_ch_mem_size = oup_ch_size * sizeof(float32);
 	int k_ch_mem_size = kernel->xsize * kernel->ysize * sizeof(float32);
+	int k_mem_size    = k_ch_mem_size * kernel->zsize;
 	int i, j, k;
 	int num_omp_threads = 1;
 #ifdef ENABLE_OPENMP
 	num_omp_threads = omp_get_max_threads();
 #endif
 	float32 *omp_out_buf = 
-		(float32*)malloc(sizeof(float32) * oup_ch_size * num_omp_threads);
+		(float32*)malloc(
+			oup_ch_size * num_omp_threads * sizeof(float32));
 	if (!omp_out_buf) {
 #ifndef ENABLE_MEMMGR
 		free_feature_map(oup);
@@ -115,25 +121,27 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		for (j = 0; j < kernel->zsize; ++j)
 		{
 #ifdef ENABLE_OPENMP
-			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
-							omp_out_buf + omp_get_thread_num() * oup_ch_size,
-						inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
-				kernel->xsize);
+		_conv_2d_handler(
+			(inp_pad->data->mem + j * p_ch_mem_size),
+			omp_out_buf + omp_get_thread_num() * oup_ch_size,
+			inp_pad->xsize, inp_pad->ysize, s, s, p, 
+			(kernel->data->mem + (i * k_mem_size) + 
+			j * k_ch_mem_size), kernel->xsize);
 #else
-			_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
-						omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p, 
-					(kernel->data->mem + (i * k_mem_size) + j * k_ch_mem_size),
-				kernel->xsize);
+		_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
+			omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p,
+			(kernel->data->mem + (i * k_mem_size) + 
+			j * k_ch_mem_size), kernel->xsize);
 
 #endif
 			for (k = 0; k < oup_ch_size; ++k)
 			{
 #ifdef ENABLE_OPENMP
-				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) +=
-						(omp_out_buf + omp_get_thread_num() * oup_ch_size)[k];
+	*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) +=
+		(omp_out_buf + omp_get_thread_num() * oup_ch_size)[k];
 #else
-				*(((float32*)(oup->data->mem + i * o_ch_mem_size)) + k) += omp_out_buf[k];
+	*(((float32*)
+		(oup->data->mem + i * o_ch_mem_size)) + k) += omp_out_buf[k];
 #endif
 			}
 		}

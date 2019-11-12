@@ -10,7 +10,9 @@ feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 	if (!l || p < 0)
 		return NULL;
 #ifdef ENABLE_MEMMGR
-	feature_map_t *pad = (feature_map_t*)memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
+	feature_map_t *pad =
+		(feature_map_t*)
+			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #else
 	feature_map_t *pad = NULL;
 #endif
@@ -22,7 +24,8 @@ feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 		pad->xsize = l->xsize + p + p;
 		pad->ysize = l->ysize + p + p;
 		pad->zsize = l->zsize;
-		pad->data  = list_new_static(l->zsize, sizeof(float32) * pad->xsize * pad->ysize);
+		pad->data  = list_new_static(l->zsize,
+				sizeof(float32) * pad->xsize * pad->ysize);
 		if (!pad->data) {
 			free(pad);
 			return NULL;
@@ -40,8 +43,10 @@ feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 		{
 			for (j = 0; j < l->xsize; ++j)
 			{
-				*((float32*)(pad->data->mem) + pad_ch_size * c + (i + p) * pad->xsize + p + j) =
-					*((float32*)l->data->mem + l_ch_size * c + i * l->xsize + j);
+				*((float32*)(pad->data->mem) +
+					pad_ch_size * c + (i + p) * pad->xsize
+					+ p + j) = *((float32*)l->data->mem + 
+				l_ch_size * c + i * l->xsize + j);
 			}
 		}
 	}

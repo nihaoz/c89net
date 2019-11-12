@@ -12,7 +12,7 @@
 #endif
 
 void v4sf_fully_connected_float32(float32 *inp, float32 *oup,
-					float32 *w, float32 *b, int iw, int ow);
+			float32 *w, float32 *b, int iw, int ow);
 
 #endif /* SET_GCC_BUILTIN_VEX */
 

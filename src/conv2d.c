@@ -15,7 +15,8 @@ channel_t *conv_2d_malloc(channel_t *ch, int k, int s, int p)
 	new_ch->datatype = DATATYPE_FLOAT32;
 	new_ch->xsize = conv_2d_size_calc(ch->xsize, k, s, p);
 	new_ch->ysize = conv_2d_size_calc(ch->ysize, k, s, p);
-	new_ch->data  = (float32*)malloc(sizeof(float32) * new_ch->xsize * new_ch->ysize);
+	new_ch->data  = (float32*)
+		malloc(sizeof(float32) * new_ch->xsize * new_ch->ysize);
 	if (!new_ch->data) {
 		free(new_ch);
 		return NULL;
@@ -42,8 +43,8 @@ channel_t *conv2d_filter(float32 *data, int size)
 channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p)
 {
 	if (datatype_check(inp->datatype, DATATYPE_FLOAT32) ||
-			datatype_check(filter->datatype, DATATYPE_FLOAT32)) {
-		fprintf(stderr, "2-D channel conv only support float32 data for now\n");
+		datatype_check(filter->datatype, DATATYPE_FLOAT32)) {
+		fprintf(stderr,"2-D channel conv only support float32 data for now\n");
 		return NULL;
 	}
 	channel_t *ch = conv_2d_malloc(inp, filter->xsize, s, p);
@@ -55,13 +56,14 @@ channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p)
 					 __FILE__, __LINE__);
 		exit(0);
 	}
-	naive_conv_2d_float32(inp->data, ch->data, inp->xsize, inp->ysize,
-					s, s, p, filter->data, filter->xsize);
+	naive_conv_2d_float32(inp->data, ch->data,
+			inp->xsize, inp->ysize, s, s, p, filter->data,
+		filter->xsize);
 	return ch;
 }
 
-void naive_conv_2d_float32(float32 *inp, float32 *oup, int x, int y,
-				int sx, int sy, int p, float32 *filter, int fw)
+void naive_conv_2d_float32(float32 *inp, float32 *oup,
+	int x, int y, int sx, int sy, int p, float32 *filter, int fw)
 {
 	int i, j, k, l;
 	int half_fw = fw >> 1;

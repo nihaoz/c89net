@@ -47,7 +47,10 @@ channel_t *channel_norm_float32(channel_t *ch, float32 l, float32 r, int f);
 
 channel_t *clone_channel_float32(channel_t *ch);
 
-/* Convert a gray image into a 2-D float32 channel, pxls val form [0, 255] to [-1, 1]*/
+/*
+ * Convert a gray image into a 2-D float32 channel,
+ * pxls val form [0, 255] to [-1, 1]
+ */
 channel_t *gray_to_channel_float32(gray_obj *gray, int mod);
 
 /* Convert a normalized 2-D float32 channel to gray image */
@@ -55,7 +58,8 @@ gray_obj *normalized_channel_float32_to_gray(channel_t *ch);
 
 channel_t *free_channel(channel_t *ch);
 
-int channel_float32_dump_to_text(channel_t *ch, const char* filename, int format);
+int channel_float32_dump_to_text(channel_t *ch,
+		const char* filename, int format);
 
 void debug_fprint_ch_info(FILE *fp, channel_t *ch);
 

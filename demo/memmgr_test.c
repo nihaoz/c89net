@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
 	rgb_obj *img = img_read_bmp(input_name);
 	gray_obj *img_gray = img_new_gray(INPUT_IMG_X, INPUT_IMG_Y, -1);
 	img_rgb_split(img->data, INPUT_IMG_X * INPUT_IMG_Y,
-					img_gray->data, img_gray->data, img_gray->data);
+			img_gray->data, img_gray->data, img_gray->data);
 	img = img_free_rgb(img);
 	channel_t *ch_gray = gray_to_channel_float32(img_gray, GRAY_TO_CHANNEL_MNIST);
 	img_gray = img_free_gray(img_gray);
