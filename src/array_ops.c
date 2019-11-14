@@ -14,6 +14,12 @@
 		*(datatype*)sum += *((datatype*)arr + i);   \
 	}
 
+#define ARRAY_OPS(op, dst, src, arrlen, datatype)               \
+	for (i = 0; i < arrlen; ++i)                            \
+	{                                                       \
+		*((datatype*)dst + i) += *((datatype*)src + i); \
+	}
+
 void add_to_array(void *arr, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
@@ -112,6 +118,31 @@ void array_mean(void *arr, int arrlen, void *x, int dt)
 		case DATATYPE_INT64:
 			ARRAY_SUM(arr, arrlen, int64, x);
 			*(int64*)x /= arrlen;
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+}
+
+void array_ops_add(void *dst, void *src, int arrlen, int dt)
+{
+	int i; /* for C89 style */
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ARRAY_OPS(+, dst, src, arrlen, float32);
+			break;
+		case DATATYPE_FLOAT64:
+			ARRAY_OPS(+, dst, src, arrlen, float64);
+			break;
+		case DATATYPE_INT16:
+			ARRAY_OPS(+, dst, src, arrlen, int16);
+			break;
+		case DATATYPE_INT32:
+			ARRAY_OPS(+, dst, src, arrlen, int32);
+			break;
+		case DATATYPE_INT64:
+			ARRAY_OPS(+, dst, src, arrlen, int64);
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
