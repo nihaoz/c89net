@@ -68,7 +68,8 @@ feature_map_t *fully_connected(feature_map_t *inp,
 		oup->xsize = 1;
 		oup->ysize = 1;
 		oup->zsize = w->wsize;
-		oup->data = list_new_static(w->wsize, sizeof(float32));
+		oup->data = list_new_static(w->wsize,
+			sizeof_datatype(oup->datatype));
 		if (!oup->data) {
 			free(oup);
 			return NULL;

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifdef ENABLE_OPENMP
 	#include <omp.h>
 #endif
@@ -10,17 +11,17 @@
 /*
  * Ref: global_function_config.h
  * void (*_conv_2d)(void *inp, void *oup, int x, int y,
- *			int sx, int sy, int p, void *filter, int filter_width);
+ *	int sx, int sy, int p, void *filter, int filter_width);
  */
 
 /* #include "global_function_config.h" */
 
 extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 /* _conv_2d_handler for current processing datatype */
 static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 					cnn_para_t *bias, const char *name)

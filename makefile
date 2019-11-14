@@ -9,7 +9,7 @@ cc = gcc
 OMP   = -DENABLE_OPENMP -fopenmp
 
 # Option for c89, may degrade performance
-C89F  = -std=c89 -DCONFIG_STD_C89
+C89F  = # -std=c89 -DCONFIG_STD_C89
 
 LINK  = -lm
 INC   = -I ./src/

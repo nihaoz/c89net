@@ -17,17 +17,17 @@
 /*
  * Ref: global_function_config.h
  * void (*_conv_2d)(void *inp, void *oup, int x, int y,
- *			int sx, int sy, int p, void *filter, int filter_width);
+ *	int sx, int sy, int p, void *filter, int filter_width);
  */
 
 /* #include "global_function_config.h" */
 
 extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 /* _conv_2d_handler for current processing datatype */
 static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			cnn_para_t *bias, int s, int p, const char *name)
@@ -98,7 +98,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	int k_ch_mem_size = kernel->xsize * kernel->ysize *
 					sizeof_datatype(kernel->datatype);
 	int k_mem_size    = k_ch_mem_size * kernel->zsize;
-	int i, j, k;
+	int i, j;
 	int num_omp_threads = 1;
 #ifdef ENABLE_OPENMP
 	num_omp_threads = omp_get_max_threads();
@@ -117,7 +117,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	memset(oup->data->mem, 0, oup->data->length);
 #endif
 #ifdef ENABLE_OPENMP
-	#pragma omp parallel for private(i, j, k)
+	#pragma omp parallel for private(i, j)
 #endif
 	for (i = 0; i < kernel->wsize; ++i)
 	{

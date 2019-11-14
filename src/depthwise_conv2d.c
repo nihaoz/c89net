@@ -15,17 +15,17 @@
 /*
  * Ref: global_function_config.h
  * void (*_conv_2d)(void *inp, void *oup, int x, int y,
- *			int sx, int sy, int p, void *filter, int filter_width);
+ *	int sx, int sy, int p, void *filter, int filter_width);
  */
 
 /* #include "global_function_config.h" */
 
 extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 /* _conv_2d_handler for current processing datatype */
 static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-			int sx, int sy, int p, void *filter, int filter_width);
+		int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *depthwise_conv2d(feature_map_t *inp,
 		cnn_para_t *kernel, int s, int p, const char *name)
@@ -75,7 +75,8 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp,
 					kernel->ysize, s, p);
 		oup->zsize = kernel->zsize;
 		oup->data  = list_new_static(oup->zsize,
-				sizeof(float32) * oup->xsize * oup->ysize);
+				sizeof_datatype(oup->datatype) *
+				oup->xsize * oup->ysize);
 		if (!oup->data) {
 			free(oup);
 #ifndef ENABLE_MEMMGR
@@ -89,9 +90,11 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp,
 #endif
 	}
 	int oup_ch_size = oup->xsize * oup->ysize;
-	int p_ch_mem_size = inp_pad->xsize * inp_pad->ysize * sizeof(float32);
-	int o_ch_mem_size = oup_ch_size * sizeof(float32);
-	int k_ch_mem_size = kernel->xsize * kernel->ysize * sizeof(float32);
+	int p_ch_mem_size = inp_pad->xsize * inp_pad->ysize *
+				sizeof_datatype(inp->datatype);
+	int o_ch_mem_size = oup_ch_size * sizeof_datatype(oup->datatype);
+	int k_ch_mem_size = kernel->xsize * kernel->ysize *
+				sizeof_datatype(kernel->datatype);
 	int i;
 #ifdef ENABLE_OPENMP
 	#pragma omp parallel for private(i)
