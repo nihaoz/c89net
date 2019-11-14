@@ -25,6 +25,9 @@ OPTFN  = # -DSET_GCC_BUILTIN_VEX
 RESLIM = # -DLESS_RESOURCE
 
 # Testing features
+
+
+
 TESTFN = -DENABLE_MEMMGR
 
 CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
@@ -32,10 +35,10 @@ CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
-obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o\
-	fmap_ops.o conv2d.o spatial_conv2d.o depthwise_conv2d.o memmgr.o \
-	activation.o normalization.o data_layer.o pad.o pool.o debug_log.o \
-	fullyconn.o list.o global_function_config.o vxsf_fullyconn.o 
+obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o memmgr.o \
+	fmap_ops.o conv2d.o spatial_conv2d.o depthwise_conv2d.o activation.o \
+	pointwise_conv2d.o normalization.o data_layer.o pad.o pool.o  list.o \
+	debug_log.o fullyconn.o global_function_config.o vxsf_fullyconn.o 
 
 DEMO  = memmgr_test
 CNN   = lenet
@@ -86,6 +89,8 @@ spatial_conv2d.o: src/spatial_conv2d.h src/spatial_conv2d.c
 	$(cc) -c src/spatial_conv2d.c $(INC) $(CFLAG)
 depthwise_conv2d.o: src/depthwise_conv2d.h src/depthwise_conv2d.c
 	$(cc) -c src/depthwise_conv2d.c $(INC) $(CFLAG)
+pointwise_conv2d.o: src/pointwise_conv2d.h src/pointwise_conv2d.c
+	$(cc) -c src/pointwise_conv2d.c $(INC) $(CFLAG)
 fullyconn.o: src/fullyconn.h src/fullyconn.c
 	$(cc) -c src/fullyconn.c $(INC) $(CFLAG)
 data_layer.o: src/data_layer.h src/data_layer.c
