@@ -15,6 +15,8 @@ void array_mean(void *arr, int arrlen, void *x, int dt);
 
 void array_ops_add(void *dst, void *src, int arrlen, int dt);
 
+void array_ops_mul(void *dst, void *src, int arrlen, int dt);
+
 #ifdef __cplusplus
 	}
 #endif

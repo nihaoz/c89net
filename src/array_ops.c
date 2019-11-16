@@ -149,3 +149,28 @@ void array_ops_add(void *dst, void *src, int arrlen, int dt)
 			break;
 	}
 }
+
+void array_ops_mul(void *dst, void *src, int arrlen, int dt)
+{
+	int i; /* for C89 style */
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ARRAY_OPS(*, dst, src, arrlen, float32);
+			break;
+		case DATATYPE_FLOAT64:
+			ARRAY_OPS(*, dst, src, arrlen, float64);
+			break;
+		case DATATYPE_INT16:
+			ARRAY_OPS(*, dst, src, arrlen, int16);
+			break;
+		case DATATYPE_INT32:
+			ARRAY_OPS(*, dst, src, arrlen, int32);
+			break;
+		case DATATYPE_INT64:
+			ARRAY_OPS(*, dst, src, arrlen, int64);
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+}
