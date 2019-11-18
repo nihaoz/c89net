@@ -148,13 +148,13 @@ cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	int counter_chk = 0;
-	int para_sum    = ch_x * ch_y * ch_i * ch_o;
 	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
 		return NULL;
 	}
+	int counter_chk = 0;
+	int para_sum    = ch_x * ch_y * ch_i * ch_o;
 	l->datatype = DATATYPE_FLOAT32;
 	l->type  = PARA_TYPE_KERNEL;
 	l->xsize = ch_x;
@@ -202,14 +202,13 @@ float32 *bias_from_cnn_parameters(cnn_para_t *l)
 	return p;
 }
 
-cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
+cnn_para_t *load_cnn_bias(const char *filename, int ch_i, const char *name)
 {
 	format_log(LOG_WARN,"load_cnn_bias can only load little-endian float32 stream file %s: %d",\
 						 __FILE__, __LINE__);
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	int counter_chk = 0;
 	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
@@ -219,18 +218,19 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
 	l->type  = PARA_TYPE_BIAS;
 	l->xsize = 1;
 	l->ysize = 1;
-	l->zsize = ch_z;
-	l->data  = list_new_static(ch_z, sizeof(float32));
+	l->zsize = ch_i;
+	l->data  = list_new_static(ch_i, sizeof(float32));
 	if (!l->data) {
 		fclose(fp);
 		free(l);
 		return NULL;
 	}
 	float32 para;
+	int counter_chk = 0;
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++,
 			(byte*)&para, sizeof(float32));
-	if (counter_chk != ch_z) {
+	if (counter_chk != ch_i) {
 		fclose(fp);
 		free_cnn_parameters(l);
 		return NULL;
@@ -240,23 +240,26 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_z, const char *name)
 	return l;
 }
 
-cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name)
+cnn_para_t *load_cnn_batch_norm(const char *filename, int ch_i, const char *name)
 {
 	format_log(LOG_WARN,"load_cnn_batch_norm can only load little-endian float32 stream file %s: %d",\
 						 __FILE__, __LINE__);
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	int counter_chk = 0;
 	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
 		return NULL;
 	}
+	int counter_chk = 0;
+	int para_sum = PARA_BN_CHK * ch_i;
 	l->datatype = DATATYPE_FLOAT32;
 	l->type  = PARA_TYPE_BN;
 	l->xsize = PARA_BN_CHK;
-	l->data  = list_new_static(PARA_BN_CHK, sizeof(float32));
+	l->ysize = 1;
+	l->zsize = ch_i;
+	l->data  = list_new_static(para_sum, sizeof(float32));
 	if (!l->data) {
 		fclose(fp);
 		free(l);
@@ -266,7 +269,7 @@ cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name)
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++,
 			(byte*)&para, sizeof(float32));
-	if (counter_chk != PARA_BN_CHK) {
+	if (counter_chk != para_sum) {
 		fclose(fp);
 		free_cnn_parameters(l);
 		return NULL;

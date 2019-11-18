@@ -81,9 +81,9 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l);
 cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 		int ch_x, int ch_y, int ch_i, int ch_o, const char *name);
 
-cnn_para_t *load_cnn_bias(const char *filename, int ch_x, const char *name);
+cnn_para_t *load_cnn_bias(const char *filename, int ch_i, const char *name);
 
-cnn_para_t *load_cnn_batch_norm(const char *filename, const char *name);
+cnn_para_t *load_cnn_batch_norm(const char *filename, int ch_i, const char *name);
 
 float32 *bias_from_cnn_parameters(cnn_para_t *l);
 

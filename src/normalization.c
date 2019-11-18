@@ -26,6 +26,11 @@ void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 
 feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 {
+	/* Parameter check */
+	if (l->zsize != arg->zsize) {
+		QUICK_LOG_ERR_DATATYPE((l->zsize != arg->zsize));
+		return NULL;
+	}
 	/* Datatype check */
 	if (l->datatype != arg->datatype) {
 		QUICK_LOG_ERR_DATATYPE((l->datatype != arg->datatype));
@@ -38,7 +43,12 @@ feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 		default:
 			QUICK_LOG_ERR_DATATYPE(l->datatype);
 	}
-	_batch_norm_handler(l->data->mem, l->xsize * l->ysize * l->zsize,
-		arg->data->mem);
+	int i;
+	int ch_mem_size = l->xsize * l->ysize * sizeof_datatype(l->datatype);
+	for (i = 0; i < arg->zsize; ++i)
+	{
+		_batch_norm_handler(l->data->mem + ch_mem_size * i,
+			ch_mem_size, arg->data->mem + PARA_BN_CHK * i);
+	}
 	return l;
 }
