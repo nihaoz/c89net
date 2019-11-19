@@ -14,6 +14,13 @@
  */
 feature_map_t *max_pool2_2(feature_map_t *l, const char *name);
 
+/*
+ * Pooling using a kernel which has the same size with a input
+ * channel...
+ */
+/* feature_map_t *channel_max(feature_map_t *l, const char *name); */
+feature_map_t *channel_avg(feature_map_t *l, const char *name);
+
 void _max_pool2_2(float32 *inp, int x, int y, float32 *oup);
 
 #ifdef __cplusplus
