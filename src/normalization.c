@@ -44,11 +44,12 @@ feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 			QUICK_LOG_ERR_DATATYPE(l->datatype);
 	}
 	int i;
-	int ch_mem_size = l->xsize * l->ysize * sizeof_datatype(l->datatype);
+	int ch_size = l->xsize * l->ysize;
+	int ch_mem_size = ch_size * sizeof_datatype(l->datatype);
 	for (i = 0; i < arg->zsize; ++i)
 	{
 		_batch_norm_handler(l->data->mem + ch_mem_size * i,
-			ch_mem_size, arg->data->mem + PARA_BN_CHK * i);
+			ch_size, arg->data->mem + PARA_BN_CHK * i);
 	}
 	return l;
 }

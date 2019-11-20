@@ -5,7 +5,7 @@
 #endif
 #include "pad.h"
 
-feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
+feature_map_t *pad_surround(feature_map_t *l, int p, int offset, const char *name)
 {
 	if (!l || p < 0)
 		return NULL;
@@ -21,8 +21,8 @@ feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 		if (!pad)
 			return NULL;
 		pad->datatype = l->datatype;
-		pad->xsize = l->xsize + p + p;
-		pad->ysize = l->ysize + p + p;
+		pad->xsize = l->xsize + p + p - offset;
+		pad->ysize = l->ysize + p + p - offset;
 		pad->zsize = l->zsize;
 		pad->data  = list_new_static(l->zsize,
 				sizeof(float32) * pad->xsize * pad->ysize);
@@ -44,8 +44,9 @@ feature_map_t *pad_surround(feature_map_t *l, int p, const char *name)
 			for (j = 0; j < l->xsize; ++j)
 			{
 				*((float32*)(pad->data->mem) +
-					pad_ch_size * c + (i + p) * pad->xsize
-					+ p + j) = *((float32*)l->data->mem + 
+				pad_ch_size * c + (i + p - offset) * pad->xsize
+							+ p + j - offset) =
+					*((float32*)l->data->mem +
 				l_ch_size * c + i * l->xsize + j);
 			}
 		}

@@ -57,19 +57,19 @@ channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p)
 		exit(0);
 	}
 	naive_conv_2d_float32(inp->data, ch->data,
-			inp->xsize, inp->ysize, s, s, p, filter->data,
+			inp->xsize, inp->ysize, ch->xsize, ch->ysize,
+			s, s, filter->data,
 		filter->xsize);
 	return ch;
 }
 
 void naive_conv_2d_float32(float32 *inp, float32 *oup,
-	int x, int y, int sx, int sy, int p, float32 *filter, int fw)
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	float32 *filter, int fw)
 {
 	int i, j, k, l;
 	int half_fw = fw >> 1;
 	float sum;
-	int oup_x = x - (p << 1);
-	int oup_y = y - (p << 1);
 /* If enable OpenMP... Not performing well in processing small kernels
  * #ifdef ENABLE_OPENMP
  * 	omp_set_num_threads(num_conv_threads);

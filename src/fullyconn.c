@@ -88,5 +88,5 @@ feature_map_t *fully_connected(feature_map_t *inp,
 feature_map_t *spatial_conv2d_fully_connected(feature_map_t *inp,
 			cnn_para_t *w, cnn_para_t *b, const char *name)
 {
-	return spatial_conv2d(inp, w, b, 1, 0, name);
+	return spatial_conv2d(inp, w, b, 1, 0, 0, name);
 }

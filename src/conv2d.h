@@ -36,7 +36,8 @@ int conv_2d_size_calc(int inp, int k, int s, int p);
 channel_t *conv_2d_malloc(channel_t *ch, int k, int s, int p);
 
 void naive_conv_2d_float32(float32 *inp, float32 *oup,
-	int x, int y, int sx, int sy, int p, float32 *filter, int fw);
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	float32 *filter, int fw);
 
 #ifdef __cplusplus
 	}

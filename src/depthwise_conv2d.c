@@ -20,15 +20,17 @@
 
 /* #include "global_function_config.h" */
 
-extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
+extern void (*_conv_2d_float32)(void *inp, void *oup,
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	void *filter, int fw);
 
 /* _conv_2d_handler for current processing datatype */
-static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
+static void (*_conv_2d_handler)(void *inp, void *oup,
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	void *filter, int fw);
 
-feature_map_t *depthwise_conv2d(feature_map_t *inp,
-		cnn_para_t *kernel, int s, int p, const char *name)
+feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
+			int s, int p, int poffset, const char *name)
 {
 	/* Parameter check, kernel - wsize should be 1 */
 	if (inp->zsize != kernel->zsize) {
@@ -50,7 +52,7 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp,
 	/* Add padding */
 	char padding_name[PADDING_NAME_BUF_LEN];
 	sprintf(padding_name, "%s%s", name, CONV_PAD_NAME_SURFFIX);
-	feature_map_t *inp_pad = pad_surround(inp, p, padding_name);
+	feature_map_t *inp_pad = pad_surround(inp, p, poffset, padding_name);
 	if (!inp_pad)
 		return NULL;
 #ifdef ENABLE_MEMMGR
@@ -99,13 +101,14 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp,
 #ifdef ENABLE_OPENMP
 	#pragma omp parallel for private(i)
 #endif
-	for (i = 0; i < kernel->wsize; ++i)
+	for (i = 0; i < kernel->zsize; ++i)
 	{
 		_conv_2d_handler(
-			(inp_pad->data->mem + i * p_ch_mem_size),
-				(oup->data->mem + i * o_ch_mem_size),
-				inp_pad->xsize, inp_pad->ysize, s, s, p, 
-			(kernel->data->mem + i * k_ch_mem_size),
+			(inp_pad->data->mem + p_ch_mem_size * i),
+				(oup->data->mem + o_ch_mem_size * i),
+					inp_pad->xsize, inp_pad->ysize,
+				oup->xsize, oup->ysize, s, s, 
+			(kernel->data->mem + k_ch_mem_size * i),
 		kernel->xsize);
 	}
 #ifndef ENABLE_MEMMGR

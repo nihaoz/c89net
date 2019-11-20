@@ -22,15 +22,18 @@
 
 /* #include "global_function_config.h" */
 
-extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
+extern void (*_conv_2d_float32)(void *inp, void *oup,
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	void *filter, int fw);
 
 /* _conv_2d_handler for current processing datatype */
-static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
+static void (*_conv_2d_handler)(void *inp, void *oup,
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	void *filter, int fw);
 
-feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
-			cnn_para_t *bias, int s, int p, const char *name)
+feature_map_t *spatial_conv2d(feature_map_t *inp,
+			cnn_para_t *kernel, cnn_para_t *bias,
+			int s, int p, int poffset, const char *name)
 {
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
@@ -52,7 +55,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	/* Add padding */
 	char padding_name[PADDING_NAME_BUF_LEN];
 	sprintf(padding_name, "%s%s", name, CONV_PAD_NAME_SURFFIX);
-	feature_map_t *inp_pad = pad_surround(inp, p, padding_name);
+	feature_map_t *inp_pad = pad_surround(inp, p, poffset, padding_name);
 	if (!inp_pad)
 		return NULL;
 #ifdef ENABLE_MEMMGR
@@ -127,7 +130,8 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		_conv_2d_handler(
 			(inp_pad->data->mem + j * p_ch_mem_size),
 			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
-			inp_pad->xsize, inp_pad->ysize, s, s, p, 
+				inp_pad->xsize, inp_pad->ysize,
+				oup->xsize, oup->ysize, s, s, 
 			(kernel->data->mem + (i * k_mem_size) + 
 			j * k_ch_mem_size), kernel->xsize);
 		array_ops_add(oup->data->mem + i * o_ch_mem_size,
@@ -135,7 +139,8 @@ feature_map_t *spatial_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		oup_ch_size, oup->datatype);
 #else
 		_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
-			omp_out_buf, inp_pad->xsize, inp_pad->ysize, s, s, p,
+			omp_out_buf, inp_pad->xsize, inp_pad->ysize,
+					oup->xsize, oup->ysize, s, s,
 			(kernel->data->mem + (i * k_mem_size) + 
 			j * k_ch_mem_size), kernel->xsize);
 		array_ops_add(oup->data->mem + i * o_ch_mem_size,

@@ -25,9 +25,9 @@ void (*_batch_norm_float32)(float32 *inp, int len, float32 *bnarg) = \
  */
 #include "conv2d.h"
 
-void (*_conv_2d_float32)(float32 *inp, float32 *oup, int x, int y,
-		int sx, int sy, int p, float32 *filter, int fw) = \
-	naive_conv_2d_float32;
+void (*_conv_2d_float32)(float32 *inp, float32 *oup,
+		int x, int y, int oup_x, int oup_y, int sx, int sy,
+	float32 *filter, int fw) = naive_conv_2d_float32;
 
 /*
  * Set implemention for _fully_connected_float32
