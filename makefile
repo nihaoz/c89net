@@ -39,7 +39,7 @@ obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o memmgr.o \
 	debug_log.o fullyconn.o global_function_config.o vxsf_fullyconn.o 
 
 DEMO  = memmgr_test
-CNN   = lenet
+CNN   = lenet tinynet
 ALL   = $(DEMO) $(CNN)
 
 all: $(ALL)
@@ -51,6 +51,8 @@ cnn: $(CNN)
 # CNNs
 lenet: cnn/lenet/lenet.c $(obj)
 	$(cc) -o $(@) cnn/lenet/lenet.c $(obj) $(INC) $(CFLAG) $(LINK)
+tinynet: cnn/tinynet/tinynet.c $(obj)
+	$(cc) -o $(@) cnn/tinynet/tinynet.c $(obj) $(INC) $(CFLAG) $(LINK)
 
 # Simple demo
 matmul_test: demo/matmul_test.c $(obj)
