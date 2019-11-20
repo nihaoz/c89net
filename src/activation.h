@@ -9,6 +9,8 @@
 
 feature_map_t *activation_relu(feature_map_t *l);
 
+feature_map_t *activation_relu6(feature_map_t *l);
+
 #ifdef __cplusplus
 	}
 #endif

@@ -52,7 +52,7 @@ feature_map_t *max_pool2_2(feature_map_t *l, const char *name)
 	return pool;
 }
 
-feature_map_t *channel_pool_avg(feature_map_t *l, const char *name)
+feature_map_t *channel_avg(feature_map_t *l, const char *name)
 {
 #ifdef ENABLE_MEMMGR
 	feature_map_t *pool = 
@@ -61,7 +61,6 @@ feature_map_t *channel_pool_avg(feature_map_t *l, const char *name)
 #else
 	feature_map_t *pool = NULL;
 #endif
-	return NULL;
 	if (!pool) {
 		pool = (feature_map_t*)malloc(sizeof(feature_map_t));
 		if (!pool)

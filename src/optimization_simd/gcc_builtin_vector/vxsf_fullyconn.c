@@ -32,9 +32,9 @@ void v4sf_fully_connected_float32(float32 *inp, float32 *oup,
 		{
 			oup[i] += (*(inp + j)) * (*(w + iw * i + j));
 		}
-		oup[i] += b[i];
+		if (b)
+			oup[i] += b[i];
 	}
-	return;
 }
 
 #endif /* SET_GCC_BUILTIN_VEX */

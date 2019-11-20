@@ -132,18 +132,18 @@ feature_map_t *spatial_conv2d(feature_map_t *inp,
 			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
 				inp_pad->xsize, inp_pad->ysize,
 				oup->xsize, oup->ysize, s, s, 
-			(kernel->data->mem + (i * k_mem_size) + 
-			j * k_ch_mem_size), kernel->xsize);
-		array_ops_add(oup->data->mem + i * o_ch_mem_size,
+			(kernel->data->mem + (k_mem_size * i) + 
+			k_ch_mem_size * j), kernel->xsize);
+		array_ops_add(oup->data->mem + o_ch_mem_size * i,
 			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
 		oup_ch_size, oup->datatype);
 #else
-		_conv_2d_handler((inp_pad->data->mem + j * p_ch_mem_size),
+		_conv_2d_handler((inp_pad->data->mem + p_ch_mem_size * j),
 			omp_out_buf, inp_pad->xsize, inp_pad->ysize,
 					oup->xsize, oup->ysize, s, s,
-			(kernel->data->mem + (i * k_mem_size) + 
-			j * k_ch_mem_size), kernel->xsize);
-		array_ops_add(oup->data->mem + i * o_ch_mem_size,
+			(kernel->data->mem + (k_mem_size * i) + 
+			k_ch_mem_size * j), kernel->xsize);
+		array_ops_add(oup->data->mem + o_ch_mem_size * i,
 			omp_out_buf, oup_ch_size, oup->datatype);
 
 #endif

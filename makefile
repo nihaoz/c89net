@@ -6,7 +6,7 @@
 cc = gcc
 
 # Openmp support
-OMP   = # -DENABLE_OPENMP -fopenmp
+OMP   = -DENABLE_OPENMP -fopenmp
 
 # Option for c89, may degrade performance
 C89F  = # -std=c89 -DCONFIG_STD_C89
@@ -25,8 +25,6 @@ OPTFN  = -DSET_GCC_BUILTIN_VEX
 RESLIM = # -DLESS_RESOURCE
 
 # Testing features
-
-
 
 TESTFN = -DENABLE_MEMMGR
 
@@ -112,4 +110,3 @@ vxsf_fullyconn.o: src/optimization_simd/gcc_builtin_vector/vxsf_fullyconn.h \
 
 clean:
 	find . -name "*.o"  | xargs rm -f && rm $(ALL)
-

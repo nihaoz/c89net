@@ -14,11 +14,12 @@ void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 		mean    = *(bnarg + BN_OFFSET_MEAN),
 		var     = *(bnarg + BN_OFFSET_VAR),
 		epsilon = *(bnarg + BN_OFFSET_EPSILON);
+	float32 frac = sqrt(var + epsilon);
 	int i;
 	for (i = 0; i < len; ++i)
 	{
 		*(inp + i) = (gamma * 
-				(*(inp + i) - mean) / sqrt(var + epsilon))
+				(*(inp + i) - mean) / frac)
 			+ beta;
 	}
 	return;
@@ -49,7 +50,8 @@ feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 	for (i = 0; i < arg->zsize; ++i)
 	{
 		_batch_norm_handler(l->data->mem + ch_mem_size * i,
-			ch_size, arg->data->mem + PARA_BN_CHK * i);
+				ch_size, arg->data->mem + PARA_BN_CHK * 
+			sizeof_datatype(arg->datatype) * i);
 	}
 	return l;
 }

@@ -28,7 +28,8 @@ void naive_fully_connected_float32(float32 *inp, float32 *oup,
 		{
 			oup[i] += (*(inp + j)) * (*(w + iw * i + j));
 		}
-		oup[i] += b[i];
+		if (b)
+			oup[i] += b[i];
 	}
 	return;
 }
@@ -79,8 +80,12 @@ feature_map_t *fully_connected(feature_map_t *inp,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, oup);
 #endif
 	}
-	_fully_connected_handler(inp->data->mem, oup->data->mem,
+	if (b)
+		_fully_connected_handler(inp->data->mem, oup->data->mem,
 		w->data->mem, b->data->mem, w->zsize, w->wsize);
+	else
+		_fully_connected_handler(inp->data->mem, oup->data->mem,
+		w->data->mem, NULL, w->zsize, w->wsize);
 	return oup;
 	/* return spatial_conv(inp, w, b, 1, 0, name); */
 }

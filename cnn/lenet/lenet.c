@@ -137,7 +137,6 @@ int main(int argc, char const *argv[])
 
 	feature_map_t *l1_conv, *l1_conv_relu, *l1_conv_pool, *l2_conv, *l2_conv_relu, \
 		*l2_conv_pool, *l2_flat, *fc1, *fc1_relu, *fc2;
-
 	/*
 	 * L1 conv stride: 1 padding: 2
 	 */
@@ -169,7 +168,6 @@ int main(int argc, char const *argv[])
 	/*
 	 * L fc1, by conv1_1 stride: 1 padding: 0
 	 */
-
 	fc1 = fully_connected(l2_flat, fc1_w, fc1_b, "fc1");
 	/*
 	 * L fc1 relu
@@ -179,7 +177,6 @@ int main(int argc, char const *argv[])
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
 	fc2 = fully_connected(fc1_relu, fc2_w, fc2_b, "fc2");
-
 	/*
 	 * Output result...
 	 */
