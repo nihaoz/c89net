@@ -13,7 +13,8 @@
  * Default padding with 0
  */
 
-feature_map_t *pad_surround(feature_map_t *l, int p, int offset, const char *name);
+feature_map_t *pad_surround(feature_map_t *l, int p,
+			int offset, const char *name);
 
 #ifdef __cplusplus
 	}
