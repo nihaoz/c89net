@@ -13,6 +13,8 @@ feature_map_t *activation_relu6(feature_map_t *inp);
 
 void navie_activation_relu_float32(float32 *inp, int len);
 void navie_activation_relu6_float32(float32 *inp, int len);
+void navie_activation_leaky_relu_float32(float32 *inp,
+				float32 *alpha, int len);
 
 #ifdef __cplusplus
 	}
