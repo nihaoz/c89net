@@ -5,8 +5,6 @@
 	extern "C" {
 #endif
 
-#include <math.h>
-
 #include "data_util.h"
 
 /*
