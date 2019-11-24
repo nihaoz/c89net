@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "data_types.h"
 #include "debug_log.h"
 #include "array_ops.h"
@@ -20,7 +23,7 @@
 		*((datatype*)dst + i) += *((datatype*)src + i); \
 	}
 
-void add_to_array(void *arr, int arrlen, void *x, int dt)
+void soft_add_to_array(void *arr, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
@@ -45,7 +48,7 @@ void add_to_array(void *arr, int arrlen, void *x, int dt)
 	}
 }
 
-void mul_to_array(void *arr, int arrlen, void *x, int dt)
+void soft_mul_to_array(void *arr, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
@@ -68,6 +71,66 @@ void mul_to_array(void *arr, int arrlen, void *x, int dt)
 			QUICK_LOG_ERR_DATATYPE();
 			break;
 	}
+}
+
+void *add_to_array(void *arr, int arrlen, void *x, int dt)
+{
+	int i, mem_size = arrlen * sizeof_datatype(dt);
+	void *buf = malloc(mem_size);
+	if (!buf)
+		return NULL;
+	memcpy(buf, arr, mem_size);
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, float32);
+			break;
+		case DATATYPE_FLOAT64:
+			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, float64);
+			break;
+		case DATATYPE_INT16:
+			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int16);
+			break;
+		case DATATYPE_INT32:
+			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int32);
+			break;
+		case DATATYPE_INT64:
+			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int64);
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+	return buf;
+}
+
+void *mul_to_array(void *arr, int arrlen, void *x, int dt)
+{
+	int i, mem_size = arrlen * sizeof_datatype(dt);
+	void *buf = malloc(mem_size);
+	if (!buf)
+		return NULL;
+	memcpy(buf, arr, mem_size);
+	switch (dt) {
+		case DATATYPE_FLOAT32:
+			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, float32);
+			break;
+		case DATATYPE_FLOAT64:
+			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, float64);
+			break;
+		case DATATYPE_INT16:
+			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int16);
+			break;
+		case DATATYPE_INT32:
+			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int32);
+			break;
+		case DATATYPE_INT64:
+			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int64);
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE();
+			break;
+	}
+	return buf;
 }
 
 void array_sum(void *arr, int arrlen, void *x, int dt)

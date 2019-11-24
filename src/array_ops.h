@@ -5,9 +5,13 @@
 	extern "C" {
 #endif
 
-void add_to_array(void *arr, int arrlen, void *x, int dt);
+void soft_add_to_array(void *arr, int arrlen, void *x, int dt);
 
-void mul_to_array(void *arr, int arrlen, void *x, int dt);
+void soft_mul_to_array(void *arr, int arrlen, void *x, int dt);
+
+void *add_to_array(void *arr, int arrlen, void *x, int dt);
+
+void *mul_to_array(void *arr, int arrlen, void *x, int dt);
 
 void array_sum(void *arr, int arrlen, void *x, int dt);
 
