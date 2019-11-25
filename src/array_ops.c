@@ -11,6 +11,13 @@
 		*((datatype*)arr + i) op ## = *(datatype*)elem;   \
 	}
 
+#define ARRAY_ELEM_OPS(op, elem, inp, oup, arrlen, datatype)   \
+	for (i = 0; i < arrlen; ++i)                           \
+	{                                                      \
+		*((datatype*)oup + i) = *((datatype*)inp + i)  \
+				op *(datatype*)elem;           \
+	}
+
 #define ARRAY_SUM(arr, arrlen, datatype, sum)               \
 	for (i = 0; i < arrlen; ++i)                        \
 	{                                                   \
@@ -30,18 +37,18 @@ void soft_add_to_array(void *arr, int arrlen, void *x, int dt)
 		case DATATYPE_FLOAT32:
 			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float32);
 			break;
-		case DATATYPE_FLOAT64:
-			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float64);
-			break;
-		case DATATYPE_INT16:
-			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int16);
-			break;
-		case DATATYPE_INT32:
-			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int32);
-			break;
-		case DATATYPE_INT64:
-			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int64);
-			break;
+		// case DATATYPE_FLOAT64:
+		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float64);
+		// 	break;
+		// case DATATYPE_INT16:
+		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int16);
+		// 	break;
+		// case DATATYPE_INT32:
+		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int32);
+		// 	break;
+		// case DATATYPE_INT64:
+		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int64);
+		// 	break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
 			break;
@@ -73,64 +80,54 @@ void soft_mul_to_array(void *arr, int arrlen, void *x, int dt)
 	}
 }
 
-void *add_to_array(void *arr, int arrlen, void *x, int dt)
+void add_to_array(void *inp, void *oup, int arrlen, void *x, int dt)
 {
-	int i, mem_size = arrlen * sizeof_datatype(dt);
-	void *buf = malloc(mem_size);
-	if (!buf)
-		return NULL;
-	memcpy(buf, arr, mem_size);
+	int i; /* for C89 style */
 	switch (dt) {
 		case DATATYPE_FLOAT32:
-			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, float32);
+			ARRAY_ELEM_OPS(+, x, inp, oup, arrlen, float32);
 			break;
 		case DATATYPE_FLOAT64:
-			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, float64);
+			ARRAY_ELEM_OPS(+, x, inp, oup, arrlen, float64);
 			break;
 		case DATATYPE_INT16:
-			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int16);
+			ARRAY_ELEM_OPS(+, x, inp, oup, arrlen, int16);
 			break;
 		case DATATYPE_INT32:
-			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int32);
+			ARRAY_ELEM_OPS(+, x, inp, oup, arrlen, int32);
 			break;
 		case DATATYPE_INT64:
-			ELEM_OPS_ON_ARRAY(+, x, buf, arrlen, int64);
+			ARRAY_ELEM_OPS(+, x, inp, oup, arrlen, int64);
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
 			break;
 	}
-	return buf;
 }
 
-void *mul_to_array(void *arr, int arrlen, void *x, int dt)
+void mul_to_array(void *inp, void *oup, int arrlen, void *x, int dt)
 {
-	int i, mem_size = arrlen * sizeof_datatype(dt);
-	void *buf = malloc(mem_size);
-	if (!buf)
-		return NULL;
-	memcpy(buf, arr, mem_size);
+	int i; /* for C89 style */
 	switch (dt) {
 		case DATATYPE_FLOAT32:
-			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, float32);
+			ARRAY_ELEM_OPS(*, x, inp, oup, arrlen, float32);
 			break;
 		case DATATYPE_FLOAT64:
-			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, float64);
+			ARRAY_ELEM_OPS(*, x, inp, oup, arrlen, float64);
 			break;
 		case DATATYPE_INT16:
-			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int16);
+			ARRAY_ELEM_OPS(*, x, inp, oup, arrlen, int16);
 			break;
 		case DATATYPE_INT32:
-			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int32);
+			ARRAY_ELEM_OPS(*, x, inp, oup, arrlen, int32);
 			break;
 		case DATATYPE_INT64:
-			ELEM_OPS_ON_ARRAY(*, x, buf, arrlen, int64);
+			ARRAY_ELEM_OPS(*, x, inp, oup, arrlen, int64);
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
 			break;
 	}
-	return buf;
 }
 
 void array_sum(void *arr, int arrlen, void *x, int dt)
