@@ -9,7 +9,6 @@
 #include "data_layer.h"
 #include "spatial_conv2d.h"
 #include "depthwise_conv2d.h"
-#include "pointwise_conv2d.h"
 #include "fullyconn.h"
 #include "normalization.h"
 #include "pad.h"
@@ -240,38 +239,37 @@ int main(int argc, char const *argv[])
 		*l7_pool, *fc;
 
 	l1_conv_dw = depthwise_conv2d(inp, conv1_dw, 1, 1, 0, "conv1_dw");
-	/* l1_conv_pw = spatial_conv2d(l1_conv_dw, conv1_pw, NULL, 1, 0, 0, "conv1_pw"); */
-	l1_conv_pw = pointwise_conv2d(l1_conv_dw, conv1_pw, NULL, "conv1_pw");
+	l1_conv_pw = spatial_conv2d(l1_conv_dw, conv1_pw, NULL, 1, 0, 0, "conv1_pw");
 	l1_conv_bn = batch_norm(l1_conv_pw, conv1_bn);
 	l1_conv_bn = activation_relu6(l1_conv_bn);
 
 	l2_conv_dw = depthwise_conv2d(l1_conv_bn, conv2_dw, 2, 1, 1, "conv2_dw");
-	l2_conv_pw = pointwise_conv2d(l2_conv_dw, conv2_pw, NULL, "conv2_pw");
+	l2_conv_pw = spatial_conv2d(l2_conv_dw, conv2_pw, NULL, 1, 0, 0, "conv2_pw");
 	l2_conv_bn = batch_norm(l2_conv_pw, conv2_bn);
 	l2_conv_bn = activation_relu6(l2_conv_bn);
 
 	l3_conv_dw = depthwise_conv2d(l2_conv_bn, conv3_dw, 1, 1, 0, "conv3_dw");
-	l3_conv_pw = pointwise_conv2d(l3_conv_dw, conv3_pw, NULL, "conv3_pw");
+	l3_conv_pw = spatial_conv2d(l3_conv_dw, conv3_pw, NULL, 1, 0, 0, "conv3_pw");
 	l3_conv_bn = batch_norm(l3_conv_pw, conv3_bn);
 	l3_conv_bn = activation_relu6(l3_conv_bn);
 
 	l4_conv_dw = depthwise_conv2d(l3_conv_bn, conv4_dw, 1, 1, 0, "conv4_dw");
-	l4_conv_pw = pointwise_conv2d(l4_conv_dw, conv4_pw, NULL, "conv4_pw");
+	l4_conv_pw = spatial_conv2d(l4_conv_dw, conv4_pw, NULL, 1, 0, 0, "conv4_pw");
 	l4_conv_bn = batch_norm(l4_conv_pw, conv4_bn);
 	l4_conv_bn = activation_relu6(l4_conv_bn);
 
 	l5_conv_dw = depthwise_conv2d(l4_conv_bn, conv5_dw, 2, 1, 1, "conv5_dw");
-	l5_conv_pw = pointwise_conv2d(l5_conv_dw, conv5_pw, NULL, "conv5_pw");
+	l5_conv_pw = spatial_conv2d(l5_conv_dw, conv5_pw, NULL, 1, 0, 0, "conv5_pw");
 	l5_conv_bn = batch_norm(l5_conv_pw, conv5_bn);
 	l5_conv_bn = activation_relu6(l5_conv_bn);
 
 	l6_conv_dw = depthwise_conv2d(l5_conv_bn, conv6_dw, 1, 1, 0, "conv6_dw");
-	l6_conv_pw = pointwise_conv2d(l6_conv_dw, conv6_pw, NULL, "conv6_pw");
+	l6_conv_pw = spatial_conv2d(l6_conv_dw, conv6_pw, NULL, 1, 0, 0, "conv6_pw");
 	l6_conv_bn = batch_norm(l6_conv_pw, conv6_bn);
 	l6_conv_bn = activation_relu6(l6_conv_bn);
 
 	l7_conv_dw = depthwise_conv2d(l6_conv_bn, conv7_dw, 2, 1, 0, "conv7_dw");
-	l7_conv_pw = pointwise_conv2d(l7_conv_dw, conv7_pw, NULL, "conv7_pw");
+	l7_conv_pw = spatial_conv2d(l7_conv_dw, conv7_pw, NULL, 1, 0, 0, "conv7_pw");
 	l7_conv_bn = batch_norm(l7_conv_pw, conv7_bn);
 	l7_conv_bn = activation_relu6(l7_conv_bn);
 

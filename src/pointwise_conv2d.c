@@ -1,27 +1,15 @@
 #include <stdlib.h>
+#include <string.h>
 #ifdef ENABLE_OPENMP
 	#include <omp.h>
 #endif
 #ifdef ENABLE_MEMMGR
 	#include "memmgr.h"
 #endif
+#include "array_ops.h"
+#include "fmap_ops.h"
 #include "debug_log.h"
 #include "pointwise_conv2d.h"
-
-/*
- * Ref: global_function_config.h
- * void (*_conv_2d)(void *inp, void *oup, int x, int y,
- *	int sx, int sy, int p, void *filter, int filter_width);
- */
-
-/* #include "global_function_config.h" */
-
-extern void (*_conv_2d_float32)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
-
-/* _conv_2d_handler for current processing datatype */
-static void (*_conv_2d_handler)(void *inp, void *oup, int x, int y,
-		int sx, int sy, int p, void *filter, int filter_width);
 
 feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 					cnn_para_t *bias, const char *name)
@@ -35,13 +23,6 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 	if (inp->datatype != kernel->datatype) {
 		QUICK_LOG_ERR_DATATYPE((inp->datatype != kernel->datatype));
 		return NULL;
-	}
-	switch (inp->datatype) {
-		case DATATYPE_FLOAT32:
-			_conv_2d_handler = _conv_2d_float32;
-			break;
-		default:
-			QUICK_LOG_ERR_DATATYPE(inp->datatype);
 	}
 #ifdef ENABLE_MEMMGR
 	feature_map_t *oup =
@@ -70,8 +51,60 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, oup);
 #endif
 	}
-	/*
-	 * Not implemented yet...
-	 */
-	return NULL;
+	int i_ch_size = inp->xsize * inp->ysize;
+	int i_ch_mem_size = i_ch_size * sizeof_datatype(inp->datatype);
+	int o_ch_size = oup->xsize * oup->ysize;
+	int o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
+	int k_ch_mem_size = sizeof_datatype(kernel->datatype);
+	int k_mem_size = k_ch_mem_size * kernel->zsize;
+	int i, j;
+	int num_omp_threads = 1;
+#ifdef ENABLE_OPENMP
+	num_omp_threads = omp_get_max_threads();
+#endif
+	byte *omp_out_buf = 
+		(byte*)malloc(o_ch_mem_size * num_omp_threads);
+	if (!omp_out_buf) {
+#ifndef ENABLE_MEMMGR
+		free_feature_map(oup);
+#endif
+		return NULL;
+	}
+ /* reset memory each time when reuse exist feature map */
+#ifdef ENABLE_MEMMGR
+	memset(oup->data->mem, 0, oup->data->length);
+#endif
+#ifdef ENABLE_OPENMP
+	#pragma omp parallel for private(i, j)
+#endif
+	for (i = 0; i < kernel->wsize; ++i)
+	{
+		for (j = 0; j < kernel->zsize; ++j)
+		{
+#ifdef ENABLE_OPENMP
+		mul_to_array(inp->data->mem + i_ch_mem_size * j,
+			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
+			i_ch_size, kernel->data->mem + k_mem_size * i +
+				k_ch_mem_size * j, kernel->datatype);
+		array_ops_add(oup->data->mem + o_ch_mem_size * i,
+			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
+			o_ch_size, oup->datatype);
+#else
+		mul_to_array(inp->data->mem + i_ch_mem_size * j,
+						omp_out_buf, i_ch_size,
+				kernel->data->mem + k_mem_size * i +
+				k_ch_mem_size * j, kernel->datatype);
+		array_ops_add(oup->data->mem + o_ch_mem_size * i,
+			omp_out_buf, o_ch_size, oup->datatype);
+
+#endif
+		}
+	}
+	free(omp_out_buf);
+	if (!bias){
+		return oup;
+	} else {
+		oup = feature_map_bias(oup, bias);
+	}
+	return oup;
 }

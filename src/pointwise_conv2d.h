@@ -1,4 +1,7 @@
-/* Efficient pointwise conv(equal to spatial conv by 1 * 1 kernel) */
+/*
+ * Efficient pointwise conv(equal to spatial conv by 1 * 1 kernel)
+ * For low-end CPU...
+ */
 #ifndef _POINTWISE_CONV2D_H_
 #define _POINTWISE_CONV2D_H_
 
