@@ -9,7 +9,7 @@ static void (*_batch_norm_handler)(void *inp, int len, void *bnarg);
 
 void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 {
-	float32 gamma = *(bnarg + BN_OFFSET_GAMMA),
+	float32 gamma   = *(bnarg + BN_OFFSET_GAMMA),
 		beta    = *(bnarg + BN_OFFSET_BETA),
 		mean    = *(bnarg + BN_OFFSET_MEAN),
 		var     = *(bnarg + BN_OFFSET_VAR),
@@ -27,6 +27,7 @@ void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 
 feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 {
+	int ch_size, ch_mem_size, i;
 	/* Parameter check */
 	if (l->zsize != arg->zsize) {
 		QUICK_LOG_ERR_DATATYPE((l->zsize != arg->zsize));
@@ -44,9 +45,8 @@ feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 		default:
 			QUICK_LOG_ERR_DATATYPE(l->datatype);
 	}
-	int i;
-	int ch_size = l->xsize * l->ysize;
-	int ch_mem_size = ch_size * sizeof_datatype(l->datatype);
+	ch_size     = l->xsize * l->ysize;
+	ch_mem_size = ch_size * sizeof_datatype(l->datatype);
 	for (i = 0; i < arg->zsize; ++i)
 	{
 		_batch_norm_handler(l->data->mem + ch_mem_size * i,

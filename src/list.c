@@ -17,7 +17,7 @@
 void __________compile_time_test___________()
 {
 	/* LIST_INFO_LEN) must be 32 */
-	BUILD_BUG_ON(32 - LIST_INFO_LEN);
+	BUILD_BUG_ON(24 - LIST_INFO_LEN);
 }
 
 static uint _djb_hash(byte *s, uint len, uint seed)
@@ -62,12 +62,8 @@ void _memrev(void *i, int s)
 
 list_t *list_new_static(uint scale, uint blen)
 {
-	if (!scale)
-		return NULL;
-	if (!blen)
-		return NULL;
 	list_t *list = (list_t*)malloc(sizeof(list_t));
-	if (!list)
+	if (!scale || !blen || !list)
 		return NULL;
 	memset(list, 0, sizeof(list_t));
 	SET_FLAG(list->flag, LIST_STATIC_MODE);
@@ -86,10 +82,8 @@ list_t *list_new_static(uint scale, uint blen)
 
 list_t *list_new_dynamic(uint scale)
 {
-	if (!scale)
-		return NULL;
 	list_t *list = (list_t*)malloc(sizeof(list_t));
-	if (!list)
+	if (!scale || !list)
 		return NULL;
 	memset(list, 0, sizeof(list_t));
 	SET_FLAG(list->flag, LIST_DYNAMIC_MODE);
@@ -179,33 +173,36 @@ __status list_resize(list_t *list, uint newScale)
 
 __status list_resize_static(list_t *list, uint newScale)
 {
+	byte *newMem = NULL;
+	uint newLen = newScale * list->blen;
 	if (TEST_FLAG(list->flag, LIST_UNRESIZABLE))
 		return OPS_BAD_OBJ;
-	ulong newLen = newScale * list->blen;
-	byte *newMem = (byte*)realloc(list->mem, newLen);
+	newMem = (byte*)realloc(list->mem, newLen);
 	if (!newMem)
 		return OPS_MALLOC_ERR;
 	if (newScale > list->scale) {
 		memset(list->mem + list->scale * list->blen, 0,
 			(newScale - list->scale) * list->blen);
 	}
-	list->mem = newMem;
-	list->length = newLen;
-	list->scale = newScale;
+	list->mem     = newMem;
+	list->length  = newLen;
+	list->scale   = newScale;
 	list->counter = newScale;
 	return OPS_SUCCESS;
 }
 
 __status list_resize_dynamic(list_t *list, uint newScale)
 {
+	byte **newIndex = NULL;
+	uint i = 0;
 	if (TEST_FLAG(list->flag, LIST_UNRESIZABLE))
 		return OPS_BAD_OBJ;
 	if (newScale < list->scale) {
-		uint i = newScale;
+		i = newScale;
 		for (; i < list->scale; ++i)
 			list_del_dynamic_record(list, i);
 	}
-	byte **newIndex = (byte**)realloc(list->index,
+	newIndex = (byte**)realloc(list->index,
 					newScale * sizeof(byte*));
 	if (!newIndex)
 		return OPS_MALLOC_ERR;
@@ -242,16 +239,18 @@ __status list_set_static_record(list_t *list, uint id,
 __status list_set_dynamic_record(list_t *list, uint id,
 	byte *record, uint len)
 {
+	DynLenFlag *l = NULL;
+	uint mlen = 0;
 	if (id >= list->scale)
 		return OPS_BAD_ID;
 	if (list->index[id])
 		return OPS_DYN_ID_EXIST;
-	uint mlen = len + sizeof(DynLenFlag);
+	mlen = len + sizeof(DynLenFlag);
 	list->index[id] = (byte*)malloc(mlen);
 	if (!list->index[id])
 		return OPS_MALLOC_ERR;
 	memcpy(list->index[id] + sizeof(DynLenFlag), record, len);
-	DynLenFlag *l = (DynLenFlag*)list->index[id];
+	l = (DynLenFlag*)list->index[id];
 	*l = len;
 	list->counter++;
 	list->length += mlen;
@@ -261,14 +260,15 @@ __status list_set_dynamic_record(list_t *list, uint id,
 bool list_test_record(list_t *list, uint id, uint offset,
 	uint nbyte)
 {
+	byte *rec = NULL;
+	uint c = 0;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
 		if (list->index[id])
 			return true;
 		else
 			return false;
 	} else if (TEST_FLAG(list->flag, LIST_STATIC_MODE)) {
-		uint c = 0;
-		byte *rec = list_get_static_record(list, id);
+		rec = list_get_static_record(list, id);
 		while (nbyte--) {
 			c += rec[offset + nbyte];
 		}
@@ -313,8 +313,9 @@ byte *list_get_dynamic_record(list_t *list, uint id)
 
 uint list_get_record_len(list_t *list, uint id)
 {
+	byte *rec = NULL;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
-		byte *rec = list_get_dynamic_record(list, id);
+		rec = list_get_dynamic_record(list, id);
 		if (rec)
 			return list_get_dynamic_record_len(rec);
 		else
@@ -381,9 +382,9 @@ __status list_swap_static_record(list_t *list,
 __status list_swap_dynamic_record(list_t *list,
 	uint id1, uint id2)
 {
+	byte *p = NULL;
 	if (id1 >= list->scale || id2 >= list->scale)
 		return OPS_BAD_ID;
-	byte* p;
 	p = list->index[id1];
 	list->index[id1] = list->index[id2];
 	list->index[id2] = p;
@@ -391,7 +392,7 @@ __status list_swap_dynamic_record(list_t *list,
 }
 
 static void _switch_byte_order(list_t *list) {
-	_memrev(&list->length, sizeof(ulong));
+	_memrev(&list->length, sizeof(uint));
 	_memrev(&list->key, sizeof(uint));
 	_memrev(&list->counter, sizeof(uint));
 	_memrev(&list->blen, sizeof(uint));
@@ -412,6 +413,7 @@ __status list_export(list_t *list, const char *path,
 __status list_export_static(list_t *list, const char *path,
 	const char *mode)
 {
+	uint name_len = 0;
 	IO_FILE fp = NULL;
 	if (mode)
 		fp = IO_fopen(path, mode);
@@ -419,7 +421,6 @@ __status list_export_static(list_t *list, const char *path,
 		fp = IO_fopen(path, LIST_DEF_EXPORT_FILE_MODE);
 	if (!fp)
 		return OPS_FILE_ERR;
-	uint name_len = 0;
 	if (list->name)
 		name_len = strlen(list->name);
 	if (!_is_little_endian()) {
@@ -454,13 +455,14 @@ __status list_export_dynamic(list_t *list, const char *path,
 	const char *mode)
 {
 	IO_FILE fp = NULL;
+	uint name_len = 0;
+	uint sc = list->scale;
 	if (mode)
 		fp = IO_fopen(path, mode);
 	else
 		fp = IO_fopen(path, LIST_DEF_EXPORT_FILE_MODE);
 	if (!fp)
 		return OPS_FILE_ERR;
-	uint name_len = 0;
 	if (list->name)
 		name_len = strlen(list->name);
 	if (!_is_little_endian()) {
@@ -480,7 +482,6 @@ __status list_export_dynamic(list_t *list, const char *path,
 		IO_fclose(fp);
 		return OPS_FILE_ERR;
 	}
-	uint sc = list->scale;
 	while (sc--) {
 		if (list->index[sc]) {
 			if (!_is_little_endian())
@@ -511,21 +512,26 @@ __status list_export_dynamic(list_t *list, const char *path,
 
 list_t *list_import(const char *path)
 {
-	IO_FILE fp = IO_fopen(path, "rb");
+	list_t *list   = NULL;
+	char *name     = NULL;
+	uint name_len  = 0;
+	uint id        = 0;
+	DynLenFlag len = 0;
+	byte *tmp      = NULL;
+	IO_FILE fp     = IO_fopen(path, "rb");
 	if (!fp)
 		return NULL;
-	list_t *list = (list_t*)malloc(sizeof(list_t));
+	list = (list_t*)malloc(sizeof(list_t));
 	if (!list) {
 		IO_fclose(fp);
 		return NULL;
 	}
 	memset(list, 0, sizeof(list_t));
-	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
 	if (!_is_little_endian())
 		_memrev(&name_len, sizeof(uint));
 	name_len++;
-	char *name = (char*)malloc(name_len);
+	name = (char*)malloc(name_len);
 	if (!name) {
 		free(list);
 		IO_fclose(fp);
@@ -546,9 +552,6 @@ list_t *list_import(const char *path)
 			return NULL;
 		}
 		memset(list->index, 0, list->scale * sizeof(byte*));
-		DynLenFlag len = 0;
-		byte *tmp = NULL;
-		uint id = 0;
 		while (IO_fread(&len, sizeof(DynLenFlag), 1, fp)) {
 			if (!_is_little_endian())
 				_memrev(&len, sizeof(DynLenFlag));
@@ -589,21 +592,23 @@ list_t *list_import(const char *path)
 
 list_t *list_import_static(const char *path)
 {
-	IO_FILE fp = IO_fopen(path, "rb");
+	list_t *list  = NULL;
+	char *name    = NULL;
+	uint name_len = 0;
+	IO_FILE fp    = IO_fopen(path, "rb");
 	if (!fp)
 		return NULL;
-	list_t *list = (list_t*)malloc(sizeof(list_t));
+	list = (list_t*)malloc(sizeof(list_t));
 	if (!list) {
 		IO_fclose(fp);
 		return NULL;
 	}
 	memset(list, 0, sizeof(list_t));
-	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
 	if (!_is_little_endian())
 		_memrev(&name_len, sizeof(uint));
 	name_len++;
-	char *name = (char*)malloc(name_len);
+	name = (char*)malloc(name_len);
 	if (!name) {
 		free(list);
 		IO_fclose(fp);
@@ -635,21 +640,26 @@ list_t *list_import_static(const char *path)
 
 list_t *list_import_dynamic(const char *path)
 {
-	IO_FILE fp = IO_fopen(path, "rb");
+	list_t *list   = NULL;
+	char *name     = NULL;
+	uint name_len  = 0;
+	uint id        = 0;
+	DynLenFlag len = 0;
+	byte *tmp      = NULL;
+	IO_FILE fp     = IO_fopen(path, "rb");
 	if (!fp)
 		return NULL;
-	list_t *list = (list_t*)malloc(sizeof(list_t));
+	list = (list_t*)malloc(sizeof(list_t));
 	if (!list) {
 		IO_fclose(fp);
 		return NULL;
 	}
 	memset(list, 0, sizeof(list_t));
-	uint name_len;
 	IO_fread(&name_len, sizeof(uint), 1, fp);
 	if (!_is_little_endian())
 		_memrev(&name_len, sizeof(uint));
 	name_len++;
-	char *name = (char*)malloc(name_len);
+	name = (char*)malloc(name_len);
 	if (!name) {
 		free(list);
 		IO_fclose(fp);
@@ -675,9 +685,6 @@ list_t *list_import_dynamic(const char *path)
 		return NULL;
 	}
 	memset(list->index, 0, list->scale * sizeof(byte*));
-	DynLenFlag len = 0;
-	byte *tmp = NULL;
-	uint id = 0;
 	while (IO_fread(&len, sizeof(DynLenFlag), 1, fp)) {
 		if (!_is_little_endian())
 			_memrev(&len, sizeof(DynLenFlag));
@@ -702,11 +709,12 @@ list_t *list_import_dynamic(const char *path)
 #ifdef ENABLE_SSHM
 	list_t *list_new_shared(uint scale, uint blen, uint key)
 	{
+		byte *shm    = NULL;
+		uint shmlen  = 0;
 		list_t *list = (list_t*)malloc(sizeof(list_t));
 		if (!list)
 			return NULL;
 		memset(list, 0, sizeof(list_t));
-		uint shmlen = 0;
 		shmlen += LIST_NAME_LEN;
 		shmlen += sizeof(list_t);
 		SET_FLAG(list->flag, LIST_STATIC_MODE);
@@ -715,7 +723,7 @@ list_t *list_import_dynamic(const char *path)
 		SET_FLAG(list->flag, LIST_SHARED_OWNER);
 		list->length = scale * blen;
 		shmlen += list->length;
-		byte *shm = (byte*)create_shm(shmlen, key);
+		shm = (byte*)create_shm(shmlen, key);
 		if (!shm) {
 			free(list);
 			return NULL;
@@ -723,22 +731,23 @@ list_t *list_import_dynamic(const char *path)
 		memset(shm, 0, shmlen);
 		memcpy(shm, list, sizeof(list_t));
 		free(list);
-		list = (list_t*)shm;
-		list->name = (char*)shm + sizeof(list_t);
-		list->mem = shm + sizeof(list_t) + LIST_NAME_LEN;
-		list->key = key;
-		list->blen = blen;
-		list->scale = scale;
+		list          = (list_t*)shm;
+		list->name    = (char*)shm + sizeof(list_t);
+		list->mem     = shm + sizeof(list_t) + LIST_NAME_LEN;
+		list->key     = key;
+		list->blen    = blen;
+		list->scale   = scale;
 		list->counter = scale;
 		return list;
 	}
 
 	list_t *list_link_shared(uint len, uint key)
 	{
+		byte *shm = NULL;
 		list_t *list = (list_t*)malloc(sizeof(list_t));
 		if (!list)
 			return NULL;
-		byte *shm = (byte*)create_shm(len +
+		shm = (byte*)create_shm(len +
 				sizeof(list_t) + LIST_NAME_LEN, key);
 		if (!shm) {
 			free(list);
@@ -766,18 +775,22 @@ list_t *list_import_dynamic(const char *path)
 
 	list_t *list_import_shared(char *path, uint key)
 	{
-		IO_FILE fp = IO_fopen(path, "rb");
+		byte *shm     = NULL;
+		list_t *list  = NULL;
+		char *name    = NULL;
+		uint name_len = 0;
+		uint shmlen   = 0;
+		IO_FILE fp    = IO_fopen(path, "rb");
 		if (!fp)
 			return NULL;
-		list_t *list = (list_t*)malloc(sizeof(list_t));
+		list = (list_t*)malloc(sizeof(list_t));
 		if (!list)
 			return NULL;
-		uint name_len;
 		IO_fread(&name_len, sizeof(uint), 1, fp);
 		if (!_is_little_endian())
 			_memrev(&name_len, sizeof(uint));
 		name_len++;
-		char *name = (char*)malloc(name_len);
+		name = (char*)malloc(name_len);
 		if (!name) {
 			free(list);
 			return NULL;
@@ -787,9 +800,9 @@ list_t *list_import_dynamic(const char *path)
 		IO_fread(list, (sizeof(list_t)), 1, fp);
 		if (!_is_little_endian())
 			_switch_byte_order(list);
-		uint shmlen = sizeof(list_t) + LIST_NAME_LEN;
+		shmlen = sizeof(list_t) + LIST_NAME_LEN;
 		shmlen += list->length;
-		byte *shm = (byte*)create_shm(shmlen, key);
+		shm = (byte*)create_shm(shmlen, key);
 		if (!shm) {
 			free(list);
 			free(name);
@@ -802,7 +815,7 @@ list_t *list_import_dynamic(const char *path)
 		strcpy((char*)shm + sizeof(list_t), name);
 		free(name);
 		list->name = (char*)shm + sizeof(list_t);
-		list->mem = shm + sizeof(list_t) +LIST_NAME_LEN;
+		list->mem  = shm + sizeof(list_t) +LIST_NAME_LEN;
 		IO_fclose(fp);
 		return list;
 	}
@@ -832,10 +845,11 @@ bool list_is_hash_remains(list_t *list, uint id)
 __status list_calc_hash_id(list_t *list,
 			byte *data, uint len, uint arg, uint *id, __hashFx)
 {
+	uint nhash, cid;
 	if (hfx == NULL)
 		hfx = _djb_hash;
-	uint nhash = hfx(data, len, arg) % list->scale;
-	uint cid = nhash;
+	nhash = hfx(data, len, arg) % list->scale;
+	cid = nhash;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
 		while (list->index[cid]) {
 			if (list_is_hash_remains(list, cid))
@@ -865,10 +879,11 @@ __status list_search_record_hash_mod(list_t *list,
 		byte *data, uint len, uint arg, __hashFx,
 			__matchFx, byte *pattern, uint plen, uint *fid)
 {
+	uint nhash, id;
 	if (hfx == NULL)
 		hfx = _djb_hash;
-	uint nhash = hfx(data, len, arg) % list->scale;
-	uint id = nhash;
+	nhash = hfx(data, len, arg) % list->scale;
+	id = nhash;
 	if (TEST_FLAG(list->flag, LIST_DYNAMIC_MODE)) {
 		while (list->index[id]) {
 			if (mfx(list->index[id] +
@@ -919,7 +934,7 @@ void list_print_info(list_t *list, FILE *stream)
 		fprintf(fp, "[MODE]         = STATIC\n");
 	else
 		fprintf(fp, "[MODE]         = DYNAMIC\n");
-	fprintf(fp, "[length]       = %lld\n", list->length);
+	fprintf(fp, "[length]       = %d\n", list->length);
 	fprintf(fp, "[scale]        = %d\n", list->scale);
 	fprintf(fp, "[record]       = %d\n", list->counter);
 	fprintf(fp, "[block length] = %d\n", list->blen);

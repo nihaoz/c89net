@@ -18,6 +18,7 @@ for (i = 0; i < bias->zsize; ++i)                                       \
 
 feature_map_t *feature_map_bias(feature_map_t *inp, cnn_para_t *bias)
 {
+	int i, j, ch_size;
 	/* Parameter check */
 	if (inp->zsize != bias->zsize) {
 		QUICK_LOG_ERR_DATATYPE((inp->zsize != bias->zsize));
@@ -28,7 +29,7 @@ feature_map_t *feature_map_bias(feature_map_t *inp, cnn_para_t *bias)
 		QUICK_LOG_ERR_DATATYPE((inp->datatype != bias->datatype));
 		return NULL;
 	}
-	int i, j, ch_size = inp->xsize * inp->ysize;
+	ch_size = inp->xsize * inp->ysize;
 	switch (inp->datatype) {
 		case DATATYPE_FLOAT32:
 			BIAS_OPS_BY_DATATYPE(float32);

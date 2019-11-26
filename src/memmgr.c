@@ -13,8 +13,9 @@ static list_t *global_memmgr_list = NULL;
 
 static byte *_make_rec(char *name, void *sp, int *reclen)
 {
+	byte *rec = NULL;
 	*reclen = (strlen(name) + 1) + sizeof(void*);
-	byte *rec = (byte*)malloc(*reclen);
+	rec = (byte*)malloc(*reclen);
 	if (!rec)
 		return NULL;
 	strcpy((char*)rec, name);
@@ -45,12 +46,11 @@ int memmgr_init(void)
 
 int memmgr_clear(void)
 {
+	void *pdata     = NULL;
+	byte *found_rec = NULL;
+	int  i, type;
 	if (!global_memmgr_list)
 		return MEMMGR_STATE_OK;
-	void *pdata = NULL;
-	byte *found_rec = NULL;
-	uint id;
-	int i, type;
 	for (i = 0; i < global_memmgr_list->scale; ++i)
 	{
 		found_rec = list_get_record(global_memmgr_list, i);
@@ -99,12 +99,12 @@ int memmgr_clear(void)
 
 int memmgr_add_record(int type, void *sp)
 {
-	if (!global_memmgr_list)
-		return MEMMGR_ERR_NOINIT;
 	char fullname[MEMMGR_REC_NAME_BUF];
 	uint id;
-	int stat, reclen;
+	int  stat, reclen;
 	byte *rec;
+	if (!global_memmgr_list)
+		return MEMMGR_ERR_NOINIT;
 	switch (type) {
 		case MEMMGR_REC_TYPE_FEATURE_MAP:
 			__ADD_RECORD_PROC__(feature_map_t);
@@ -130,12 +130,12 @@ int memmgr_add_record(int type, void *sp)
 
 void *memmgr_get_record(int type, const char *name)
 {
-	if (!global_memmgr_list)
-		return NULL;
 	char fullname[MEMMGR_REC_NAME_BUF];
 	void *rec = NULL;
 	uint id;
-	int stat;
+	int  stat;
+	if (!global_memmgr_list)
+		return NULL;
 	switch (type) {
 		case MEMMGR_REC_TYPE_FEATURE_MAP:
 			__GET_RECORD_PROC__(feature_map_t);
@@ -161,12 +161,12 @@ void *memmgr_get_record(int type, const char *name)
 
 void memmgr_del_record(int type, const char *name)
 {
-	if (!global_memmgr_list)
-		return;
 	char fullname[MEMMGR_REC_NAME_BUF];
 	void *rec = NULL;
 	uint id;
-	int stat;
+	int  stat;
+	if (!global_memmgr_list)
+		return;
 	switch (type) {
 		case MEMMGR_REC_TYPE_FEATURE_MAP:
 			__DEL_RECORD_PROC__(feature_map_t);
@@ -196,8 +196,7 @@ void debug_fprint_memmgr_info(FILE *fp)
 void debug_fprint_memmgr_list(FILE *fp)
 {
 	byte *found_rec = NULL;
-	uint id;
-	int i, type;
+	int  i, type;
 	for (i = 0; i < global_memmgr_list->scale; ++i)
 	{
 		found_rec = list_get_record(global_memmgr_list, i);

@@ -18,7 +18,6 @@ const char _elem_print_format[2][6] = {
 
 channel_t *new_channel(int dt, int x, int y)
 {
-	channel_t *ch;
 	switch (dt) {
 		case DATATYPE_FLOAT32:
 			return new_channel_float32(x, y);
@@ -56,6 +55,7 @@ channel_t *free_channel(channel_t *ch)
 
 channel_t *gray_to_channel_float32(gray_obj *gray, int mod)
 {
+	int i, j;
 	channel_t *ch = (channel_t*)malloc(sizeof(channel_t));
 	if (!ch)
 		return NULL;
@@ -67,7 +67,6 @@ channel_t *gray_to_channel_float32(gray_obj *gray, int mod)
 		free(ch);
 		return NULL;
 	}
-	int i, j;
 	for (i = 0; i < gray->ysize; ++i)
 	{
 		for (j = 0; j < gray->xsize; ++j)
@@ -96,6 +95,7 @@ channel_t *gray_to_channel_float32(gray_obj *gray, int mod)
 
 channel_t *clone_channel_float32(channel_t *ch)
 {
+	int i, j;
 	channel_t *clone = (channel_t*)malloc(sizeof(channel_t));
 	if (!clone)
 		return NULL;
@@ -108,7 +108,6 @@ channel_t *clone_channel_float32(channel_t *ch)
 		free(clone);
 		return NULL;
 	}
-	int i, j;
 	for (i = 0; i < clone->ysize; ++i)
 	{
 		for (j = 0; j < clone->xsize; ++j)
@@ -123,22 +122,24 @@ channel_t *clone_channel_float32(channel_t *ch)
 channel_t *channel_norm_float32(channel_t *ch, float32 l, float32 r, int f)
 {
 	float32 gap = r - l;
+	float32 min = 0, max = 0;
+	float32 fac, off;
+	channel_t *n_ch;
+	int i, n;
 	if (gap <= 0) 
 		return NULL;
-	channel_t *n_ch;
 	if (f == CHANNEL_NORM_SELF)
 		n_ch = ch;
 	else
 		n_ch = new_channel_float32(ch->xsize, ch->ysize);
-	float32 min = 0, max = 0;
-	int i, n = ch->xsize * ch->ysize;
+	n = ch->xsize * ch->ysize;
 	for (i = 0; i < n; ++i)
 	{
 		min = ch->data[i] < min ? ch->data[i] : min;
 		max = ch->data[i] > max ? ch->data[i] : max;
 	}
-	float32 fac = (max -min) / gap;
-	float32 off = l - (min / fac);
+	fac = (max -min) / gap;
+	off = l - (min / fac);
 	if (!fac) {
 		for (i = 0; i < n; ++i)
 		{
@@ -156,14 +157,14 @@ channel_t *channel_norm_float32(channel_t *ch, float32 l, float32 r, int f)
 
 gray_obj *normalized_channel_float32_to_gray(channel_t *ch)
 {
+	int i, j;
+	float32 t;
 	gray_obj *gray = (gray_obj*)malloc(sizeof(gray_obj));
 	if (!gray)
 		return NULL;
 	gray->xsize = ch->xsize;
 	gray->ysize = ch->ysize;
 	gray->data = (byte*)malloc(sizeof(byte) * gray->xsize * gray->ysize);
-	int i, j;
-	float32 t;
 	for (i = 0; i < ch->ysize; ++i)
 	{
 		for (j = 0; j < ch->xsize; ++j)
@@ -187,10 +188,10 @@ gray_obj *normalized_channel_float32_to_gray(channel_t *ch)
 int channel_float32_dump_to_text(channel_t *ch,
 		const char* filename, int format)
 {
+	int i, j;
 	FILE *fp = fopen(filename, "w+");
 	if (!fp)
 		return -1;
-	int i, j;
 	for (i = 0; i < ch->ysize; ++i)
 	{
 		for (j = 0; j < ch->xsize; ++j)
@@ -212,9 +213,9 @@ void debug_fprint_ch_info(FILE *fp, channel_t *ch)
 
 int channel_float32_add(channel_t *dst, channel_t *src)
 {
+	int i, j;
 	if (dst->xsize != src->xsize || dst->ysize != src->ysize)
 		return -1;
-	int i, j;
 	for (i = 0; i < dst->ysize; ++i)
 	{
 		for (j = 0; j < dst->xsize; ++j)

@@ -37,6 +37,7 @@ void naive_fully_connected_float32(float32 *inp, float32 *oup,
 feature_map_t *fully_connected(feature_map_t *inp,
 		cnn_para_t *w, cnn_para_t *b, const char *name)
 {
+	feature_map_t *oup = NULL;
 	/* Parameter check */
 	if (inp->zsize != w->zsize) {
 		QUICK_LOG_ERR_DATATYPE((inp->zsize != w->zsize));
@@ -55,11 +56,8 @@ feature_map_t *fully_connected(feature_map_t *inp,
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
 	}
 #ifdef ENABLE_MEMMGR
-	feature_map_t *oup =
-		(feature_map_t*)
-			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
-#else
-	feature_map_t *oup = NULL;
+	oup = (feature_map_t*)
+		memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));

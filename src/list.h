@@ -18,13 +18,6 @@
 #ifndef uint
 	#define uint  unsigned int
 #endif
-#ifndef ulong
-	#define ulong unsigned long long
-#endif
-
-#ifndef INT_INFINITY
-	#define INT_INFINITY ~0
-#endif
 
 typedef uchar __status;
 
@@ -67,9 +60,9 @@ typedef DYN_LENGTH_TYPE DynLenFlag;
  * Record on dynamic mode :
  * uint length | record |, when export :
  * uint length | record | id
- * Notice: length of a dynamic record not account the DynLenFlag
+ * Notice: length of a dynamic record will not account DynLenFlag
  *
- * index     record(Each record was allocated memory by "malloc")
+ * index     record(Each record will allocate memory via "malloc")
  * index0----->rec0
  * index1----->rec1
  *        ...
@@ -88,25 +81,25 @@ typedef struct {
 	char *name;     /* name of LIST */
 	byte *mem;      /* memory pool */
 	byte **index;   /* index table */
-	ulong length;   /* length of memory pool */
+	uint length;    /* length of memory pool */
 	uint key;       /* key of shared mem */
 	uint counter;   /* record counter */
 	uint blen;      /* length of a record */
 	uint scale;     /* scale */
 	byte flag;      /* list's mode flag */
 	byte status;    /* work status flag */
-	byte placeholder[6];
+	byte placeholder[2];
 } list_t;
 
 struct list_info {
-	ulong length;   /* length of memory pool */
+	uint length;    /* length of memory pool */
 	uint key;       /* key of shared mem */
 	uint counter;   /* record counter */
 	uint blen;      /* length of a record */
 	uint scale;     /* scale */
 	byte flag;      /* list's mode flag */
 	byte status;    /* work status flag */
-	byte placeholder[6];
+	byte placeholder[2];
 };
 
 #define LIST_INFO_LEN sizeof(struct list_info)

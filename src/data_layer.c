@@ -8,17 +8,20 @@
 #include "debug_log.h"
 #include "data_layer.h"
 
-feature_map_t *feature_map_by_channels(channel_t **chs, int n, const char *name)
+feature_map_t *feature_map_by_channels(channel_t **chs,
+				int n, const char *name)
 {
+	int i, ch_size;
 	feature_map_t *l = (feature_map_t*)malloc(sizeof(feature_map_t));
 	if (!l)
 		return NULL;
-	int i, ch_size = chs[0]->xsize * chs[0]->ysize;
+	ch_size     = chs[0]->xsize * chs[0]->ysize;
 	l->datatype = chs[0]->datatype;
-	l->xsize = chs[0]->xsize;
-	l->ysize = chs[0]->ysize;
-	l->zsize = n;
-	l->data = list_new_static(n, sizeof_datatype(l->datatype) * ch_size);
+	l->xsize    = chs[0]->xsize;
+	l->ysize    = chs[0]->ysize;
+	l->zsize    = n;
+	l->data     = list_new_static(l->zsize,
+			sizeof_datatype(l->datatype) * ch_size);
 	if (!l->data) {
 		free(l);
 		return NULL;
@@ -55,7 +58,7 @@ feature_map_t *feature_map_clone(feature_map_t *l, const char *name)
 channel_t *copy_channel_form_layer(feature_map_t *l, int id)
 {
 	channel_t *ch = new_channel(l->datatype, l->xsize, l->ysize);
-	int i, k_flat = l->xsize * l->ysize;
+	int k_flat = l->xsize * l->ysize;
 	void *p = (void*)(list_get_record(l->data, id));
 	memcpy(ch->data, p, sizeof_datatype(l->datatype) * k_flat);
 	return ch;
@@ -79,6 +82,8 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 {
 	int l_size = l->xsize * l->ysize;
 	int data_c = l_size * l->zsize;
+	int i, j, unit_len = sizeof_datatype(l->datatype);
+	byte *p_dst, *p_src;
 #ifdef ENABLE_MEMMGR
 	feature_map_t *flat =
 		(feature_map_t*)
@@ -105,9 +110,8 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, flat);
 #endif
 	}
-	byte *p_dst = (byte*)flat->data->mem;
-	byte *p_src = (byte*)l->data->mem;
-	int i, j, unit_len = sizeof_datatype(l->datatype);
+	p_dst = (byte*)flat->data->mem;
+	p_src = (byte*)l->data->mem;
 	for (i = 0; i < l_size; ++i)
 	{
 		for (j = 0; j < l->zsize; ++j)
@@ -143,31 +147,32 @@ cnn_para_t *free_cnn_parameters(cnn_para_t *l)
 cnn_para_t *load_cnn_conv2d_kernel(const char *filename, 
 	int ch_x, int ch_y, int ch_i, int ch_o, const char *name)
 {
-	format_log(LOG_WARN,"load_cnn_conv2d_kernel can only load little-endian float32 stream file %s: %d",\
-						 __FILE__, __LINE__);
+	int counter_chk = 0;
+	int para_sum    = ch_x * ch_y * ch_i * ch_o;
+	cnn_para_t *l = NULL;
+	float32 para;
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
+	l = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
 		return NULL;
 	}
-	int counter_chk = 0;
-	int para_sum    = ch_x * ch_y * ch_i * ch_o;
 	l->datatype = DATATYPE_FLOAT32;
-	l->type  = PARA_TYPE_KERNEL;
-	l->xsize = ch_x;
-	l->ysize = ch_y;
-	l->zsize = ch_i;
-	l->wsize = ch_o;
-	l->data  = list_new_static(para_sum, sizeof(float32));
+	l->type     = PARA_TYPE_KERNEL;
+	l->xsize    = ch_x;
+	l->ysize    = ch_y;
+	l->zsize    = ch_i;
+	l->wsize    = ch_o;
+	l->data     = list_new_static(para_sum, sizeof(float32));
+	format_log(LOG_WARN,"load_cnn_conv2d_kernel can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
 	if (!l->data) {
 		fclose(fp);
 		free(l);
 		return NULL;
 	}
-	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++,
 			(byte*)&para, sizeof(float32));
@@ -183,14 +188,16 @@ cnn_para_t *load_cnn_conv2d_kernel(const char *filename,
 
 channel_t *copy_kernel_form_layer(cnn_para_t *l, int id)
 {
+	int k_flat;
+	channel_t *ch;
 	if (l->type != PARA_TYPE_KERNEL)
 		return NULL;
-	channel_t *ch = new_channel(l->datatype, l->xsize, l->ysize);
+	ch = new_channel(l->datatype, l->xsize, l->ysize);
 	if (!ch)
 		return NULL;
-	int i, k_flat = l->xsize * l->ysize;
-	void *p = (void*)(list_get_record(l->data, k_flat * id));
-	memcpy(ch->data, p, sizeof_datatype(l->datatype) * k_flat);
+	k_flat = l->xsize * l->ysize;
+	memcpy(ch->data, (list_get_record(l->data, k_flat * id)),
+		sizeof_datatype(l->datatype) * k_flat);
 	return ch;
 }
 
@@ -198,35 +205,36 @@ float32 *bias_from_cnn_parameters(cnn_para_t *l)
 {
 	if (l->type != PARA_TYPE_BIAS)
 		return NULL;
-	float32 *p = (float32*)l->data->mem;
-	return p;
+	return (float32*)l->data->mem;
 }
 
-cnn_para_t *load_cnn_bias(const char *filename, int ch_i, const char *name)
+cnn_para_t *load_cnn_bias(const char *filename,
+	int ch_i, const char *name)
 {
-	format_log(LOG_WARN,"load_cnn_bias can only load little-endian float32 stream file %s: %d",\
-						 __FILE__, __LINE__);
+	int counter_chk = 0;
+	float32 para;
+	cnn_para_t *l = NULL;
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
+	l = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
 		return NULL;
 	}
 	l->datatype = DATATYPE_FLOAT32;
-	l->type  = PARA_TYPE_BIAS;
-	l->xsize = 1;
-	l->ysize = 1;
-	l->zsize = ch_i;
-	l->data  = list_new_static(ch_i, sizeof(float32));
+	l->type     = PARA_TYPE_BIAS;
+	l->xsize    = 1;
+	l->ysize    = 1;
+	l->zsize    = ch_i;
+	l->data     = list_new_static(ch_i, sizeof(float32));
+	format_log(LOG_WARN,"load_cnn_bias can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
 	if (!l->data) {
 		fclose(fp);
 		free(l);
 		return NULL;
 	}
-	float32 para;
-	int counter_chk = 0;
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++,
 			(byte*)&para, sizeof(float32));
@@ -240,32 +248,34 @@ cnn_para_t *load_cnn_bias(const char *filename, int ch_i, const char *name)
 	return l;
 }
 
-cnn_para_t *load_cnn_batch_norm(const char *filename, int ch_i, const char *name)
+cnn_para_t *load_cnn_batch_norm(const char *filename,
+	int ch_i, const char *name)
 {
-	format_log(LOG_WARN,"load_cnn_batch_norm can only load little-endian float32 stream file %s: %d",\
-						 __FILE__, __LINE__);
+	int counter_chk = 0;
+	int para_sum = PARA_BN_CHK * ch_i;
+	float32 para;
+	cnn_para_t *l = NULL;
 	FILE *fp = fopen(filename, "rb");
 	if (!fp)
 		return NULL;
-	cnn_para_t *l   = (cnn_para_t*)malloc(sizeof(cnn_para_t));
+	l = (cnn_para_t*)malloc(sizeof(cnn_para_t));
 	if (!l) {
 		fclose(fp);
 		return NULL;
 	}
-	int counter_chk = 0;
-	int para_sum = PARA_BN_CHK * ch_i;
-	l->datatype = DATATYPE_FLOAT32;
-	l->type  = PARA_TYPE_BN;
-	l->xsize = PARA_BN_CHK;
-	l->ysize = 1;
-	l->zsize = ch_i;
-	l->data  = list_new_static(para_sum, sizeof(float32));
+	l->datatype  = DATATYPE_FLOAT32;
+	l->type      = PARA_TYPE_BN;
+	l->xsize     = PARA_BN_CHK;
+	l->ysize     = 1;
+	l->zsize     = ch_i;
+	l->data      = list_new_static(para_sum, sizeof(float32));
+	format_log(LOG_WARN,"load_cnn_batch_norm can only load little-endian float32 stream file %s: %d",\
+						 __FILE__, __LINE__);
 	if (!l->data) {
 		fclose(fp);
 		free(l);
 		return NULL;
 	}
-	float32 para;
 	while (fread(&para, sizeof(float32), 1, fp))
 		list_set_record(l->data, counter_chk++,
 			(byte*)&para, sizeof(float32));

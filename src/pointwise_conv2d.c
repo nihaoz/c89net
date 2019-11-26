@@ -14,6 +14,10 @@
 feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 					cnn_para_t *bias, const char *name)
 {
+	feature_map_t *oup = NULL;
+	byte *omp_out_buf  = NULL; 
+	int i_ch_size, i_ch_mem_size, o_ch_size, o_ch_mem_size,
+		k_ch_mem_size, k_mem_size, num_omp_threads, i, j;
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
 		QUICK_LOG_ERR_DATATYPE((inp->zsize != kernel->zsize));
@@ -25,23 +29,20 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		return NULL;
 	}
 #ifdef ENABLE_MEMMGR
-	feature_map_t *oup =
-		(feature_map_t*)
-			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
-#else
-	feature_map_t *oup = NULL;
+	oup = (feature_map_t*)
+		memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));
 		if (!oup)
 			return NULL;
 		oup->datatype = inp->datatype;
-		oup->xsize = inp->xsize;
-		oup->ysize = inp->ysize;
-		oup->zsize = kernel->wsize;
-		oup->data  = list_new_static(kernel->wsize,
-				sizeof_datatype(oup->datatype) *
-						oup->xsize * oup->ysize);
+		oup->xsize    = inp->xsize;
+		oup->ysize    = inp->ysize;
+		oup->zsize    = kernel->wsize;
+		o_ch_size     = oup->xsize * oup->ysize;
+		o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
+		oup->data     = list_new_static(oup->zsize, o_ch_mem_size);
 		if (!oup->data) {
 			free(oup);
 			return NULL;
@@ -51,18 +52,17 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, oup);
 #endif
 	}
-	int i_ch_size = inp->xsize * inp->ysize;
-	int i_ch_mem_size = i_ch_size * sizeof_datatype(inp->datatype);
-	int o_ch_size = oup->xsize * oup->ysize;
-	int o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
-	int k_ch_mem_size = sizeof_datatype(kernel->datatype);
-	int k_mem_size = k_ch_mem_size * kernel->zsize;
-	int i, j;
-	int num_omp_threads = 1;
+	i_ch_size     = inp->xsize * inp->ysize;
+	i_ch_mem_size = i_ch_size * sizeof_datatype(inp->datatype);
+	o_ch_size     = oup->xsize * oup->ysize;
+	o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
+	k_ch_mem_size = sizeof_datatype(kernel->datatype);
+	k_mem_size    = k_ch_mem_size * kernel->zsize;
+	num_omp_threads = 1;
 #ifdef ENABLE_OPENMP
 	num_omp_threads = omp_get_max_threads();
 #endif
-	byte *omp_out_buf = 
+	omp_out_buf = 
 		(byte*)malloc(o_ch_mem_size * num_omp_threads);
 	if (!omp_out_buf) {
 #ifndef ENABLE_MEMMGR
@@ -96,7 +96,6 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 				k_ch_mem_size * j, kernel->datatype);
 		array_ops_add(oup->data->mem + o_ch_mem_size * i,
 			omp_out_buf, o_ch_size, oup->datatype);
-
 #endif
 		}
 	}

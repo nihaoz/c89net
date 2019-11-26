@@ -27,13 +27,14 @@ channel_t *conv_2d_malloc(channel_t *ch, int k, int s, int p)
 
 channel_t *conv2d_filter(float32 *data, int size)
 {
-	int k = (int)sqrt(size);
+	int i, k;
+	channel_t *ch = NULL;
+	k = (int)sqrt(size);
 	if (k * k - size)
 		return NULL;
-	channel_t *ch = new_channel(DATATYPE_FLOAT32, k, k);
+	ch = new_channel(DATATYPE_FLOAT32, k, k);
 	if (!ch)
 		return NULL;
-	int i;
 	for (i = 0; i < size; ++i)
 	{
 		ch->data[i] = data[i];
@@ -43,14 +44,14 @@ channel_t *conv2d_filter(float32 *data, int size)
 
 channel_t *channel_conv2d(channel_t *inp, channel_t *filter, int s, int p)
 {
+	channel_t *ch = conv_2d_malloc(inp, filter->xsize, s, p);
+	if (!ch)
+		return NULL;
 	if (datatype_check(inp->datatype, DATATYPE_FLOAT32) ||
 		datatype_check(filter->datatype, DATATYPE_FLOAT32)) {
 		fprintf(stderr,"2-D channel conv only support float32 data for now\n");
 		return NULL;
 	}
-	channel_t *ch = conv_2d_malloc(inp, filter->xsize, s, p);
-	if (!ch)
-		return NULL;
 	if (p) {
 		/* Padding ops not implemented */
 		fprintf(stderr, "%s: %d, channel_conv2d cannot support padding now\n",
@@ -68,15 +69,9 @@ void naive_conv_2d_float32(float32 *inp, float32 *oup,
 		int x, int y, int oup_x, int oup_y, int sx, int sy,
 	float32 *filter, int fw)
 {
-	int i, j, k, l;
+	int i, j, k, l, oup_i, oup_j;
 	int half_fw = fw >> 1;
 	float sum;
-/* If enable OpenMP... Not performing well in processing small kernels
- * #ifdef ENABLE_OPENMP
- * 	omp_set_num_threads(num_conv_threads);
- * 	#pragma omp parallel for private(sum, j, k, l)
- * #endif
-*/
 	for (i = half_fw; i < y - half_fw; i += sy)
 	{
 		for (j = half_fw; j < x - half_fw; j += sx)
@@ -90,8 +85,8 @@ void naive_conv_2d_float32(float32 *inp, float32 *oup,
 						*(filter + (k + half_fw) * fw + (l + half_fw));
 				}
 			}
-			int oup_i = ((i - half_fw) / sy);
-			int oup_j = ((j - half_fw) / sx);
+			oup_i = ((i - half_fw) / sy);
+			oup_j = ((j - half_fw) / sx);
 			*(oup + oup_i * oup_x + oup_j) = sum;
 		}
 	}

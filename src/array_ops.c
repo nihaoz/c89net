@@ -19,6 +19,7 @@
 	}
 
 #define ARRAY_SUM(arr, arrlen, datatype, sum)               \
+	*(datatype*)sum = 0;                                \
 	for (i = 0; i < arrlen; ++i)                        \
 	{                                                   \
 		*(datatype*)sum += *((datatype*)arr + i);   \
@@ -37,18 +38,18 @@ void soft_add_to_array(void *arr, int arrlen, void *x, int dt)
 		case DATATYPE_FLOAT32:
 			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float32);
 			break;
-		// case DATATYPE_FLOAT64:
-		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float64);
-		// 	break;
-		// case DATATYPE_INT16:
-		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int16);
-		// 	break;
-		// case DATATYPE_INT32:
-		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int32);
-		// 	break;
-		// case DATATYPE_INT64:
-		// 	ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int64);
-		// 	break;
+		case DATATYPE_FLOAT64:
+			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, float64);
+			break;
+		case DATATYPE_INT16:
+			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int16);
+			break;
+		case DATATYPE_INT32:
+			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int32);
+			break;
+		case DATATYPE_INT64:
+			ELEM_OPS_ON_ARRAY(+, x, arr, arrlen, int64);
+			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE();
 			break;

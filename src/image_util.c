@@ -122,10 +122,10 @@ int img_coordinate_calc(int iaddress, int xsize, int ysize,int *x,int *y)
 
 int dump_rgb_to_text(rgb_obj *rgb, const char* filename, int format)
 {
+	int i, j;
 	FILE *fp = fopen(filename, "w+");
 	if (!fp)
 		return -1;
-	int i, j;
 	for (i = 0; i < rgb->ysize; ++i)
 	{
 		for (j = 0; j < rgb->xsize; ++j)
@@ -144,10 +144,10 @@ int dump_rgb_to_text(rgb_obj *rgb, const char* filename, int format)
 
 int dump_gray_to_text(gray_obj* gray, const char* filename, int format)
 {
+	int i, j;
 	FILE *fp = fopen(filename, "w+");
 	if (!fp)
 		return -1;
-	int i, j;
 	for (i = 0; i < gray->ysize; ++i)
 	{
 		for (j = 0; j < gray->xsize; ++j)

@@ -32,6 +32,10 @@ static void (*_conv_2d_handler)(void *inp, void *oup,
 feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			int s, int p, int poffset, const char *name)
 {
+	char padding_name[PADDING_NAME_BUF_LEN];
+	feature_map_t *inp_pad = NULL;
+	feature_map_t *oup     = NULL;
+	int o_ch_size, o_ch_mem_size, p_ch_mem_size, k_ch_mem_size, i;
 	/* Parameter check, kernel - wsize should be 1 */
 	if (inp->zsize != kernel->zsize) {
 		QUICK_LOG_ERR_DATATYPE((inp->zsize != kernel->zsize));
@@ -50,39 +54,41 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
 	}
 	/* Add padding */
-	char padding_name[PADDING_NAME_BUF_LEN];
-	sprintf(padding_name, "%s%s", name, CONV_PAD_NAME_SURFFIX);
-	feature_map_t *inp_pad = pad_surround(inp, p, poffset, padding_name);
+	if (p) {
+		sprintf(padding_name, "%s%s", name, CONV_PAD_NAME_SURFFIX);
+		inp_pad = pad_surround(inp, p, poffset, padding_name);
+	} else {
+		inp_pad = inp;
+	}
 	if (!inp_pad)
 		return NULL;
 #ifdef ENABLE_MEMMGR
-	feature_map_t *oup =
-		(feature_map_t*)
-			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
-#else
-	feature_map_t *oup = NULL;
+	oup = (feature_map_t*)
+		memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));
 		if (!oup) {
 #ifndef ENABLE_MEMMGR
-			free_feature_map(inp_pad);
+			if (p)
+				free_feature_map(inp_pad);
 #endif
 			return NULL;
 		}
 		oup->datatype = inp->datatype;
-		oup->xsize = conv_2d_size_calc(inp->xsize,
+		oup->xsize    = conv_2d_size_calc(inp->xsize,
 					kernel->xsize, s, p);
-		oup->ysize = conv_2d_size_calc(inp->ysize,
+		oup->ysize    = conv_2d_size_calc(inp->ysize,
 					kernel->ysize, s, p);
-		oup->zsize = kernel->zsize;
-		oup->data  = list_new_static(oup->zsize,
-				sizeof_datatype(oup->datatype) *
-				oup->xsize * oup->ysize);
+		oup->zsize    = kernel->zsize;
+		o_ch_size     = oup->xsize * oup->ysize;
+		o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
+		oup->data     = list_new_static(oup->zsize, o_ch_mem_size);
 		if (!oup->data) {
 			free(oup);
 #ifndef ENABLE_MEMMGR
-			free_feature_map(inp_pad);
+			if (p)
+				free_feature_map(inp_pad);
 #endif
 			return NULL;
 		}
@@ -91,13 +97,12 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, oup);
 #endif
 	}
-	int oup_ch_size = oup->xsize * oup->ysize;
-	int p_ch_mem_size = inp_pad->xsize * inp_pad->ysize *
+	o_ch_size     = oup->xsize * oup->ysize;
+	o_ch_mem_size = o_ch_size * sizeof_datatype(oup->datatype);
+	p_ch_mem_size = inp_pad->xsize * inp_pad->ysize *
 				sizeof_datatype(inp->datatype);
-	int o_ch_mem_size = oup_ch_size * sizeof_datatype(oup->datatype);
-	int k_ch_mem_size = kernel->xsize * kernel->ysize *
+	k_ch_mem_size = kernel->xsize * kernel->ysize *
 				sizeof_datatype(kernel->datatype);
-	int i;
 #ifdef ENABLE_OPENMP
 	#pragma omp parallel for private(i)
 #endif
@@ -112,7 +117,8 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		kernel->xsize);
 	}
 #ifndef ENABLE_MEMMGR
-	free_feature_map(inp_pad);
+	if (p)
+		free_feature_map(inp_pad);
 #endif
 	return oup;
 }

@@ -8,8 +8,6 @@ int img_get_bmp_size(const char *filename, int *xsize, int *ysize)
 {
 	byte header[54];
 	unsigned int *x;
-	int length;
-	char *file;
 	FILE *fp;
 	fp = fopen(filename, "rb");
 	if (fp == NULL)
@@ -24,23 +22,25 @@ int img_get_bmp_size(const char *filename, int *xsize, int *ysize)
 
 int _bmp_read(byte *image, int xsize, int ysize, const char *filename)
 {
+	byte header[BMP_HEADER];
+	byte *hp = header;
+	unsigned int b;
+	int windows_byte_cnt = 0;
+	int r = (xsize * 3 ) % 4;
+	byte *image_tail = NULL;
 	FILE *fp;
 	if (!(fp = fopen(filename, "rb"))) 
 		return -1;
-	byte header[BMP_HEADER];
-	byte *hp = header;
 	fread(header, sizeof(byte), BMP_HEADER, fp);
-	unsigned int b = *(unsigned int*)(hp + 10);
+	b = *(unsigned int*)(hp + 10);
 	fseek(fp, b, SEEK_SET);
-	int windows_byte_cnt = 0;
-	int r = (xsize * 3 ) % 4;
 	if (!r) {
 		windows_byte_cnt = 0;
 	} else {
 		int t = (xsize * 3 ) / 4;
 		windows_byte_cnt = ((t + 1) * 4) - xsize * 3;
 	}
-	byte *image_tail = image + (ysize * xsize * 3);
+	image_tail = image + (ysize * xsize * 3);
 	/* fread(image, sizeof(byte), xsize * ysize * 3, fp); */
 	for (r = 0; r < ysize; ++r)
 	{
@@ -54,11 +54,11 @@ int _bmp_read(byte *image, int xsize, int ysize, const char *filename)
 
 rgb_obj *img_read_bmp(const char *filename)
 {
+	int x, y, s;
 	rgb_obj *bmp = (rgb_obj*)malloc(sizeof(rgb_obj));
 	if (!bmp)
 		return NULL;
-	int x, y;
-	int s = img_get_bmp_size(filename, &x, &y);
+	s = img_get_bmp_size(filename, &x, &y);
 	if (!s) {
 		free(bmp);
 		return NULL;
@@ -101,24 +101,25 @@ int _bmp_write(byte *image, int xsize, int ysize, const char *filename)
 	int windows_byte_cnt = 0;
 	int windows_byte_set = 0;
 	int r = (xsize * 3 ) % 4;
+	unsigned int *x;
+	byte *image_tail = NULL;
+	FILE *fp;
 	if (!r) {
 		windows_byte_cnt = 0;
 	} else {
 		int t = (xsize * 3 ) / 4;
 		windows_byte_cnt = ((t + 1) * 4) - xsize * 3;
 	}
-	unsigned int *x;
 	x = (unsigned int*)(header + 2);
 	x[0] = (xsize * 3 + windows_byte_cnt) * ysize + BMP_HEADER;
 	x = (unsigned int*)(header + 18);
 	x[0]=xsize;
 	x[1]=ysize;
-	FILE *fp;
 	if (!(fp = fopen(filename, "wb+")))
 		return -1;
 	fwrite(header, sizeof(byte), BMP_HEADER, fp);
 	/* fwrite(image, sizeof(byte) * 3, xsize * ysize, fp); */
-	byte *image_tail = image + (ysize * xsize * 3);
+	image_tail = image + (ysize * xsize * 3);
 	for (r = 0; r < ysize; ++r)
 	{
 		image_tail -= (xsize * 3);

@@ -8,7 +8,7 @@
 #include "pad.h"
 
 #define GENERIC_PADDING_MEMCPY \
-	memcpy((pad->data->mem) + pad_ch_mem_size * c +                     \
+	memcpy((pad->data->mem) + p_ch_mem_size * c +                       \
 	(i + p - offset) * p_row_mem_size + (p + j - offset) * dtsize,      \
 	l->data->mem + l_ch_mem_size * c + i * l_row_mem_size + j * dtsize, \
 	dtsize);
@@ -16,14 +16,18 @@
 feature_map_t *pad_surround(feature_map_t *l, int p,
 			int offset, const char *name)
 {
+	int i, j, c, dtsize = sizeof_datatype(l->datatype);
+	int l_ch_size, l_ch_mem_size, l_row_mem_size,
+		p_ch_size, p_ch_mem_size, p_row_mem_size;
+	feature_map_t *pad = NULL;
 	if (!l || p < 0)
 		return NULL;
+	l_ch_size      = l->xsize * l->ysize;
+	l_ch_mem_size  = l_ch_size * dtsize;
+	l_row_mem_size = l->xsize * dtsize;
 #ifdef ENABLE_MEMMGR
-	feature_map_t *pad =
-		(feature_map_t*)
-			memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
-#else
-	feature_map_t *pad = NULL;
+	pad = (feature_map_t*)
+		memmgr_get_record(MEMMGR_REC_TYPE_FEATURE_MAP, name);
 #endif
 	if (!pad) {
 		pad = (feature_map_t*)malloc(sizeof(feature_map_t));
@@ -45,13 +49,9 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 		memmgr_add_record(MEMMGR_REC_TYPE_FEATURE_MAP, pad);
 #endif
 	}
-	int i, j, c, dtsize = sizeof_datatype(l->datatype);
-	int l_ch_size = l->xsize * l->ysize;
-	int l_ch_mem_size = l_ch_size * dtsize;
-	int l_row_mem_size = l->xsize * dtsize;
-	int pad_ch_size = pad->xsize * pad->ysize;
-	int pad_ch_mem_size = pad_ch_size * dtsize;
-	int p_row_mem_size = pad->xsize * dtsize;
+	p_ch_size      = pad->xsize * pad->ysize;
+	p_ch_mem_size  = p_ch_size * dtsize;
+	p_row_mem_size = pad->xsize * dtsize;
 	for (c = 0; c < l->zsize; ++c) {
 		for (i = 0; i < l->ysize; ++i)
 		{
