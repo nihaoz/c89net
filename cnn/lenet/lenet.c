@@ -137,6 +137,7 @@ int main(int argc, char const *argv[])
 
 	feature_map_t *l1_conv, *l1_conv_relu, *l1_conv_pool, *l2_conv, *l2_conv_relu, \
 		*l2_conv_pool, *l2_flat, *fc1, *fc1_relu, *fc2;
+
 	/*
 	 * L1 conv stride: 1 padding: 2
 	 */
@@ -180,6 +181,7 @@ int main(int argc, char const *argv[])
 	/*
 	 * Output result...
 	 */
+
 	format_log(LOG_INFO, "Computing finished!");
 	float32 *p = (float32*)fc2->data->mem;
 	float32 max_value = 0;
@@ -195,6 +197,17 @@ int main(int argc, char const *argv[])
 	}
 	printf("MAX INDEX: \33[1;31m%d\33[0m, it's the prediction result of [%s]\n",
 				max_index, input_name);
+
+	free_cnn_parameters(conv1_w);
+	free_cnn_parameters(conv1_b);
+	free_cnn_parameters(conv2_w);
+	free_cnn_parameters(conv2_b);
+	free_cnn_parameters(fc1_w);
+	free_cnn_parameters(fc1_b);
+	free_cnn_parameters(fc2_w);
+	free_cnn_parameters(fc2_b);
+	free_feature_map(inp);
+	free_channel(ch_gray);
 
 #ifdef ENABLE_MEMMGR
 	debug_fprint_memmgr_list(stdout);

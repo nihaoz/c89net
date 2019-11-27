@@ -14,6 +14,8 @@ C89F  = # -std=c89 -DCONFIG_STD_C89
 LINK  = -lm
 INC   = -I ./src/
 
+DEBUGF = # -g -fsanitize=address -fno-omit-frame-pointer
+
 OPTM_A = -march=native
 OPTM_O = -Os
 OPTM   = $(OPTM_A) $(OPTM_O)
@@ -28,7 +30,7 @@ RESLIM = # -DLESS_RESOURCE
 
 TESTFN = -DENABLE_MEMMGR
 
-CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP)
+CFLAG = $(C89F) $(TESTFN) $(OPTM) $(OMP) $(DEBUGF)
 
 G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c

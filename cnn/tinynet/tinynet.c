@@ -224,7 +224,7 @@ int main(int argc, char const *argv[])
 					1, 1, 64, 10, "fc_w");
 
 	/* Load TinyNet FC b */
-	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "fc_b");
+	format_log(LOG_INFO, "Loading TinyNet parameters: \33[1;32m%s\33[0m", "fc_b");
 	set_string_buffer_2(parameters_path, "fc_b.bin");
 	cnn_para_t *fc_b = load_cnn_bias(
 					global_string_buffer,
@@ -286,7 +286,7 @@ int main(int argc, char const *argv[])
 	float32 *p = (float32*)fc->data->mem;
 	float32 max_value = 0;
 	int     max_index = 0;
-	printf("\nPrint all output of LeNet(no softmax):\n");
+	printf("\nPrint all output of TinyNet(no softmax):\n");
 	for (i = 0; i < 10; ++i)
 	{
 		if (*(p + i) > max_value) {
@@ -297,6 +297,24 @@ int main(int argc, char const *argv[])
 	}
 	printf("MAX INDEX: \33[1;31m%d\33[0m, it's the prediction result of [%s]\n",
 				max_index, input_name);
+
+#define FREE_RESOURCES(l) \
+	free_cnn_parameters(conv##l##_dw);\
+	free_cnn_parameters(conv##l##_pw);\
+	free_cnn_parameters(conv##l##_bn);\
+
+	FREE_RESOURCES(1);
+	FREE_RESOURCES(2);
+	FREE_RESOURCES(3);
+	FREE_RESOURCES(4);
+	FREE_RESOURCES(5);
+	FREE_RESOURCES(6);
+	FREE_RESOURCES(7);
+
+	free_cnn_parameters(fc_w);
+	free_cnn_parameters(fc_b);
+	free_feature_map(inp);
+	free_channel(ch_gray);
 
 #ifdef ENABLE_MEMMGR
 	/* debug_fprint_memmgr_list(stdout); */
