@@ -14,7 +14,7 @@ void naive_batch_norm_float32(float32 *inp, int len, float32 *bnarg)
 		mean    = *(bnarg + BN_OFFSET_MEAN),
 		var     = *(bnarg + BN_OFFSET_VAR),
 		epsilon = *(bnarg + BN_OFFSET_EPSILON);
-	float32 frac = sqrt(var + epsilon);
+	float32 frac = (float32)sqrt(var + epsilon);
 	int i;
 	for (i = 0; i < len; ++i)
 	{

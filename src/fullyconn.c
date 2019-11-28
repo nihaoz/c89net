@@ -8,6 +8,7 @@
 #include "fullyconn.h"
 #include "spatial_conv2d.h"
 
+/* #include "global_function_config.h" */
 extern void (*_fully_connected_float32)(void *inp,
 		void *oup, void *w, void *b, int iw, int ow);
 

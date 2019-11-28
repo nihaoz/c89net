@@ -78,7 +78,7 @@
  * |______unsigned or signed(0/1)
  *
  * Sub class code:
- * n:   type ^ n
+ * bits = 2 ^ n
  *
  */
 

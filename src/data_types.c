@@ -14,7 +14,7 @@ void ___data_util_datatype_check___()
 	DATATYPE_CHECK(8 - sizeof(uint64));
 	/* float32 should be single precision float */
 	DATATYPE_CHECK(4 - sizeof(float32));
-	/* float32 should be double precision float */
+	/* float64 should be double precision float */
 	DATATYPE_CHECK(8 - sizeof(float64));
 }
 
