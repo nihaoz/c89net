@@ -82,7 +82,7 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		for (j = 0; j < kernel->zsize; ++j)
 		{
 #ifdef ENABLE_OPENMP
-		mul_to_array(inp->data->mem + i_ch_mem_size * j,
+		array_mul_var(inp->data->mem + i_ch_mem_size * j,
 			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
 			i_ch_size, kernel->data->mem + k_mem_size * i +
 				k_ch_mem_size * j, kernel->datatype);
@@ -90,7 +90,7 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			omp_out_buf + omp_get_thread_num() * o_ch_mem_size,
 			o_ch_size, oup->datatype);
 #else
-		mul_to_array(inp->data->mem + i_ch_mem_size * j,
+		array_mul_var(inp->data->mem + i_ch_mem_size * j,
 						omp_out_buf, i_ch_size,
 				kernel->data->mem + k_mem_size * i +
 				k_ch_mem_size * j, kernel->datatype);

@@ -31,7 +31,7 @@
 		*((datatype*)dst + i) += *((datatype*)src + i); \
 	}
 
-void soft_add_to_array(void *arr, int arrlen, void *x, int dt)
+void add_to_array(void *arr, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
@@ -56,7 +56,7 @@ void soft_add_to_array(void *arr, int arrlen, void *x, int dt)
 	}
 }
 
-void soft_mul_to_array(void *arr, int arrlen, void *x, int dt)
+void mul_to_array(void *arr, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
@@ -81,7 +81,7 @@ void soft_mul_to_array(void *arr, int arrlen, void *x, int dt)
 	}
 }
 
-void add_to_array(void *inp, void *oup, int arrlen, void *x, int dt)
+void array_add_var(void *inp, void *oup, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
@@ -106,7 +106,7 @@ void add_to_array(void *inp, void *oup, int arrlen, void *x, int dt)
 	}
 }
 
-void mul_to_array(void *inp, void *oup, int arrlen, void *x, int dt)
+void array_mul_var(void *inp, void *oup, int arrlen, void *x, int dt)
 {
 	int i; /* for C89 style */
 	switch (dt) {
