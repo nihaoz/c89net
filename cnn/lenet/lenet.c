@@ -83,7 +83,7 @@ int main(int argc, char const *argv[])
 
 	/* Load LeNet L1 conv b */
 	format_log(LOG_INFO, "Loading LeNet parameters: \33[1;32m%s\33[0m", "conv1_b");
-	set_string_buffer_2(parameters_path, "conv2_w.bin")
+	set_string_buffer_2(parameters_path, "conv1_b.bin")
 	cnn_para_t *conv1_b = load_cnn_bias(
 					global_string_buffer,
 					32, "conv1_b");

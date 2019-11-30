@@ -17,6 +17,10 @@
 #define LOG_WARN  1
 #define LOG_INFO  2
 
+#define QUICK_LOG_BAD_ARG(expr) \
+	format_log(LOG_ERR,"Argument(s) illegal @"#expr " %s: %d",\
+						 __FILE__, __LINE__);
+
 #define QUICK_LOG_ERR_MEM_ALLOC(expr) \
 	format_log(LOG_ERR,"Memory alloc failed @"#expr " %s: %d",\
 						 __FILE__, __LINE__);

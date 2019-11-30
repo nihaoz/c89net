@@ -75,6 +75,7 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name);
 feature_map_t *feature_map_reshape(feature_map_t *l, int x, int y, int z);
 
 feature_map_t *free_feature_map(feature_map_t *l);
+
 cnn_para_t *free_cnn_parameters(cnn_para_t *l);
 
 /* Testing functions */
@@ -92,6 +93,7 @@ float32 *bias_from_cnn_parameters(cnn_para_t *l);
 channel_t *copy_kernel_form_layer(cnn_para_t *l, int id);
 
 void debug_fprint_feature_map_info(feature_map_t *l, FILE *fp);
+
 void debug_fprint_cnn_parameters_info(cnn_para_t *l, FILE *fp);
 
 #ifdef __cplusplus
