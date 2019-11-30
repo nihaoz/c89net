@@ -43,7 +43,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp,
 	byte *omp_out_buf = NULL;
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
-		QUICK_LOG_ERR_DATATYPE((inp->zsize != kernel->zsize));
+		QUICK_LOG_BAD_ARG((inp->zsize != kernel->zsize));
 		return NULL;
 	}
 	/* Datatype check */

@@ -41,7 +41,7 @@ feature_map_t *fully_connected(feature_map_t *inp,
 	feature_map_t *oup = NULL;
 	/* Parameter check */
 	if (inp->zsize != w->zsize) {
-		QUICK_LOG_ERR_DATATYPE((inp->zsize != w->zsize));
+		QUICK_LOG_BAD_ARG((inp->zsize != w->zsize));
 		return NULL;
 	}
 	/* Datatype check */

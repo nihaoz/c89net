@@ -20,7 +20,7 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		k_ch_mem_size, k_mem_size, num_omp_threads, i, j;
 	/* Parameter check */
 	if (inp->zsize != kernel->zsize) {
-		QUICK_LOG_ERR_DATATYPE((inp->zsize != kernel->zsize));
+		QUICK_LOG_BAD_ARG((inp->zsize != kernel->zsize));
 		return NULL;
 	}
 	/* Datatype check */
