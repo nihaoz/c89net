@@ -45,6 +45,10 @@ void (*_max_pool2_2_float32)(float32 *inp,
 			int x, int y, float32 *oup) = \
 	naive_max_pool2_2_float32;
 
+void (*_max_pool_generic)(void *inp,
+	int x, int y, int s, void *oup, int dt) = \
+	naive_max_pool_generic;
+
 /*
  * Set implemention for _conv_2d_xxxx
  * Default:(go to the end of this segment)
