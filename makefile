@@ -36,9 +36,10 @@ G_FN_INC  = -I ./src/optimization_simd/gcc_builtin_vector/
 G_FN_CTRL = ./src/global_function_config.h ./src/global_function_config.c
 
 obj = image_util.o image_bmp.o data_util.o data_types.o array_ops.o memmgr.o \
-	fmap_ops.o conv2d.o spatial_conv2d.o depthwise_conv2d.o activation.o \
-	pointwise_conv2d.o normalization.o data_layer.o pad.o pool.o  list.o \
-	debug_log.o fullyconn.o global_function_config.o vxsf_fullyconn.o 
+	conv2d.o spatial_conv2d.o depthwise_conv2d.o activation.o upsample.o \
+	pointwise_conv2d.o data_layer.o pool.o fmap_ops.o fullyconn.o list.o \
+	pad.o normalization.o debug_log.o global_function_config.o           \
+	vxsf_fullyconn.o 
 
 DEMO  = memmgr_test
 CNN   = lenet tinynet
@@ -83,6 +84,8 @@ pad.o: src/pad.h src/pad.c
 	$(cc) -c src/pad.c $(INC) $(CFLAG)
 pool.o: src/pool.h src/pool.c
 	$(cc) -c src/pool.c $(INC) $(CFLAG)
+upsample.o: src/upsample.h src/upsample.c
+	$(cc) -c src/upsample.c $(INC) $(CFLAG)
 activation.o: src/activation.h src/activation.c
 	$(cc) -c src/activation.c $(INC) $(CFLAG)
 normalization.o: src/normalization.h src/normalization.c
