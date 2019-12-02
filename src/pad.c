@@ -9,7 +9,7 @@
 
 #define GENERIC_PADDING_MEMCPY \
 	memcpy((pad->data->mem) + p_ch_mem_size * c +                       \
-	(i + p - offset) * p_row_mem_size + (p + j - offset) * dtsize,      \
+	(i + p - poffset) * p_row_mem_size + (p + j - poffset) * dtsize,    \
 	l->data->mem + l_ch_mem_size * c + i * l_row_mem_size + j * dtsize, \
 	dtsize);
 
@@ -19,6 +19,8 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 	int i, j, c, dtsize = sizeof_datatype(l->datatype);
 	int l_ch_size, l_ch_mem_size, l_row_mem_size,
 		p_ch_size, p_ch_mem_size, p_row_mem_size;
+	int poffset = offset > 0 ? 1 : 0;
+	int soffset = offset ? 1 : 0;
 	feature_map_t *pad = NULL;
 	if (!l || p < 0)
 		return NULL;
@@ -34,8 +36,8 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 		if (!pad)
 			return NULL;
 		pad->datatype = l->datatype;
-		pad->xsize = l->xsize + p + p - offset;
-		pad->ysize = l->ysize + p + p - offset;
+		pad->xsize = l->xsize + p + p - soffset;
+		pad->ysize = l->ysize + p + p - soffset;
 		pad->zsize = l->zsize;
 		pad->data  = list_new_static(l->zsize,
 				pad->xsize * pad->ysize *
