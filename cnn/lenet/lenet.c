@@ -178,10 +178,12 @@ int main(int argc, char const *argv[])
 	 * L fc2, by conv1_1 stride: 1 padding: 0
 	 */
 	fc2 = fully_connected(fc1_relu, fc2_w, fc2_b, "fc2");
+
+	fc2 = activation_softmax(fc2);
+
 	/*
 	 * Output result...
 	 */
-
 	format_log(LOG_INFO, "Computing finished!");
 	float32 *p = (float32*)fc2->data->mem;
 	float32 max_value = 0;

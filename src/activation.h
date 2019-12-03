@@ -7,12 +7,15 @@
 
 #include "data_layer.h"
 
+feature_map_t *activation_softmax(feature_map_t *inp);
+
 feature_map_t *activation_relu(feature_map_t *inp);
 
 feature_map_t *activation_relu6(feature_map_t *inp);
 
 feature_map_t *activation_leaky_relu(feature_map_t *inp, void *alpha);
 
+void navie_activation_softmax_float32(float32 *inp, int len);
 void navie_activation_relu_float32(float32 *inp, int len);
 void navie_activation_relu6_float32(float32 *inp, int len);
 void navie_activation_leaky_relu_float32(float32 *inp,

@@ -25,6 +25,8 @@ void (*_batch_norm_float32)(float32 *inp, int len, float32 *bnarg) = \
  * naive_pppp_ffff_xxxx, Ref: normalization.h
  */
 #include "activation.h"
+void (*_activation_softmax_float32)(float32 *inp, int len) = \
+	navie_activation_softmax_float32;
 
 void (*_activation_relu_float32)(float32 *inp, int len) = \
 	navie_activation_relu_float32;

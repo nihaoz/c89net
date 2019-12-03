@@ -278,6 +278,8 @@ int main(int argc, char const *argv[])
 	l7_pool = channel_avg(l7_conv_bn, "l7_pool");
 
 	fc = fully_connected(l7_pool, fc_w, fc_b, "fc");
+	
+	fc = activation_softmax(fc);
 
 	/*
 	 * Output result...

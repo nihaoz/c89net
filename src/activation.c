@@ -5,15 +5,31 @@
 #include "data_util.h"
 #include "list.h"
 
+extern void (*_activation_softmax_float32)(void *inp, int len);
 extern void (*_activation_relu_float32)(void *inp, int len);
 extern void (*_activation_relu6_float32)(void *inp, int len);
 extern void (*_activation_leaky_relu_float32)(void *inp,
 					void *alpha, int len);
 
+static void (*_activation_softmax_handler)(void *inp, int len);
 static void (*_activation_relu_handler)(void *inp, int len);
 static void (*_activation_relu6_handler)(void *inp, int len);
 static void (*_activation_leaky_relu_handler)(void *inp,
 					void *alpha, int len);
+
+feature_map_t *activation_softmax(feature_map_t *inp)
+{
+	int len = inp->xsize * inp->ysize * inp->zsize;
+	switch (inp->datatype) {
+		case DATATYPE_FLOAT32:
+			_activation_softmax_handler = _activation_softmax_float32;
+			break;
+		default:
+			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+	}
+	_activation_softmax_handler(inp->data->mem, len);
+	return inp;
+}
 
 feature_map_t *activation_relu(feature_map_t *inp)
 {
@@ -56,6 +72,28 @@ feature_map_t *activation_leaky_relu(feature_map_t *inp, void *alpha)
 	}
 	_activation_leaky_relu_handler(inp->data->mem, alpha, len);
 	return inp;
+}
+
+void navie_activation_softmax_float32(float32 *inp, int len)
+{
+	int i; /* Happy C89 */
+	float32 v, s;
+	for (i = 0; i < len; ++i)
+	{
+#ifdef CONFIG_STD_C89
+		v = (float32)exp(inp[i]);
+		inp[i] = v;
+		s += v;
+#else
+		v = expf(inp[i]);
+		inp[i] = v;
+		s += v;
+#endif
+	}
+	for (i = 0; i < len; ++i)
+	{
+		inp[i] = inp[i] / s;
+	}
 }
 
 void navie_activation_relu_float32(float32 *inp, int len)
