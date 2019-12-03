@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include "debug_log.h"
 #include "activation.h"
