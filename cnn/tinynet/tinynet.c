@@ -275,7 +275,7 @@ int main(int argc, char const *argv[])
 	l7_conv_bn = batch_norm(l7_conv_pw, conv7_bn);
 	l7_conv_bn = activation_relu6(l7_conv_bn);
 
-	l7_pool = channel_avg(l7_conv_bn, "l7_pool");
+	l7_pool = global_avg_pool(l7_conv_bn, "l7_pool");
 
 	fc = fully_connected(l7_pool, fc_w, fc_b, "fc");
 	

@@ -121,7 +121,7 @@ feature_map_t *max_pool(feature_map_t *l, int s, const char *name)
 	return pool;
 }
 
-feature_map_t *channel_avg(feature_map_t *l, const char *name)
+feature_map_t *global_avg_pool(feature_map_t *l, const char *name)
 {
 	int i_ch_size, i_ch_mem_size, i;
 	feature_map_t *pool = NULL;
