@@ -4,6 +4,7 @@
 #ifdef ENABLE_MEMMGR
 	#include "memmgr.h"
 #endif
+#include "debug_log.h"
 #include "data_types.h"
 #include "pad.h"
 
@@ -22,8 +23,10 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 	int poffset = offset > 0 ? 1 : 0;
 	int soffset = offset ? 1 : 0;
 	feature_map_t *pad = NULL;
-	if (!l || p < 0)
+	if (!l || p < 0) {
+		QUICK_LOG_BAD_ARG(pad);
 		return NULL;
+	}
 	l_ch_size      = l->xsize * l->ysize;
 	l_ch_mem_size  = l_ch_size * dtsize;
 	l_row_mem_size = l->xsize * dtsize;
@@ -33,8 +36,10 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 #endif
 	if (!pad) {
 		pad = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!pad)
+		if (!pad) {
+			QUICK_LOG_ERR_MEM_ALLOC(pad);
 			return NULL;
+		}
 		pad->datatype = l->datatype;
 		pad->xsize = l->xsize + p + p - soffset;
 		pad->ysize = l->ysize + p + p - soffset;
@@ -44,6 +49,7 @@ feature_map_t *pad_surround(feature_map_t *l, int p,
 				sizeof_datatype(l->datatype));
 		if (!pad->data) {
 			free(pad);
+			QUICK_LOG_ERR_MEM_ALLOC(pad->data);
 			return NULL;
 		}
 		list_set_name(pad->data, name);

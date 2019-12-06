@@ -52,6 +52,7 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 	/* Add padding */
 	if (p) {
@@ -73,6 +74,7 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			if (p)
 				free_feature_map(inp_pad);
 #endif
+			QUICK_LOG_ERR_MEM_ALLOC(oup);
 			return NULL;
 		}
 		oup->datatype = inp->datatype;
@@ -90,6 +92,7 @@ feature_map_t *depthwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 			if (p)
 				free_feature_map(inp_pad);
 #endif
+			QUICK_LOG_ERR_MEM_ALLOC(oup->data);
 			return NULL;
 		}
 		list_set_name(oup->data, name);

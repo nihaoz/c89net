@@ -13,8 +13,10 @@ feature_map_t *feature_map_by_channels(channel_t **chs,
 {
 	int i, ch_size;
 	feature_map_t *l = (feature_map_t*)malloc(sizeof(feature_map_t));
-	if (!l)
+	if (!l) {
+		QUICK_LOG_ERR_MEM_ALLOC(l);
 		return NULL;
+	}
 	ch_size     = chs[0]->xsize * chs[0]->ysize;
 	l->datatype = chs[0]->datatype;
 	l->xsize    = chs[0]->xsize;
@@ -24,6 +26,7 @@ feature_map_t *feature_map_by_channels(channel_t **chs,
 			sizeof_datatype(l->datatype) * ch_size);
 	if (!l->data) {
 		free(l);
+		QUICK_LOG_ERR_MEM_ALLOC(l->data);
 		return NULL;
 	}
 	for (i = 0; i < n; ++i)
@@ -39,8 +42,10 @@ feature_map_t *feature_map_by_channels(channel_t **chs,
 feature_map_t *feature_map_clone(feature_map_t *l, const char *name)
 {
 	feature_map_t *clone = (feature_map_t*)malloc(sizeof(feature_map_t));
-	if (!clone)
+	if (!clone) {
+		QUICK_LOG_ERR_MEM_ALLOC(clone);
 		return NULL;
+	}
 	memcpy(clone, l, sizeof(feature_map_t));
 	/*
 	 * Since list_t *list_clone(list_t *s) Not implemented yet
@@ -48,8 +53,11 @@ feature_map_t *feature_map_clone(feature_map_t *l, const char *name)
 	 * clone->data = list_clone(l->data);
 	 */
 	clone->data = list_new_static(l->data->counter, l->data->blen);
-	if (!clone->data)
+	if (!clone->data) {
+		free(clone);
+		QUICK_LOG_ERR_MEM_ALLOC(clone->data);
 		return NULL;
+	}
 	memcpy(clone->data->mem, l->data->mem, l->data->length);
 	list_set_name(clone->data, name);
 	return clone;
@@ -93,8 +101,10 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 #endif
 	if (!flat) {
 		flat = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!flat)
+		if (!flat) {
+			QUICK_LOG_ERR_MEM_ALLOC(flat);
 			return NULL;
+		}
 		flat->datatype = l->datatype;
 		flat->xsize = 1;
 		flat->ysize = 1;
@@ -103,6 +113,7 @@ feature_map_t *feature_map_flat(feature_map_t *l, const char *name)
 				sizeof(sizeof_datatype(l->datatype)));
 		if (!flat->data) {
 			free(flat);
+			QUICK_LOG_ERR_MEM_ALLOC(flat->data);
 			return NULL;
 		}
 		list_set_name(flat->data, name);

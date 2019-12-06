@@ -55,6 +55,7 @@ feature_map_t *fully_connected(feature_map_t *inp,
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 #ifdef ENABLE_MEMMGR
 	oup = (feature_map_t*)
@@ -62,8 +63,10 @@ feature_map_t *fully_connected(feature_map_t *inp,
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!oup)
+		if (!oup) {
+			QUICK_LOG_ERR_MEM_ALLOC(oup);
 			return NULL;
+		}
 		oup->datatype = inp->datatype;
 		oup->xsize = 1;
 		oup->ysize = 1;
@@ -72,6 +75,7 @@ feature_map_t *fully_connected(feature_map_t *inp,
 			sizeof_datatype(oup->datatype));
 		if (!oup->data) {
 			free(oup);
+			QUICK_LOG_ERR_MEM_ALLOC(oup->data);
 			return NULL;
 		}
 		list_set_name(oup->data, name);
@@ -86,7 +90,6 @@ feature_map_t *fully_connected(feature_map_t *inp,
 		_fully_connected_handler(inp->data->mem, oup->data->mem,
 		w->data->mem, NULL, w->zsize, w->wsize);
 	return oup;
-	/* return spatial_conv(inp, w, b, 1, 0, name); */
 }
 
 feature_map_t *spatial_conv2d_fully_connected(feature_map_t *inp,

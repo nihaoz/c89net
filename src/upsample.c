@@ -26,8 +26,10 @@ feature_map_t *interpolation(feature_map_t *inp,
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!oup)
+		if (!oup) {
+			QUICK_LOG_ERR_MEM_ALLOC(oup);
 			return NULL;
+		}
 		oup->datatype = inp->datatype;
 		oup->xsize    = inp->xsize * scale;
 		oup->ysize    = inp->ysize * scale;
@@ -106,7 +108,7 @@ void naive_interpolation_checkerboard(void *inp,
 			INTERPOLATION_CB_SUB_PROCESS(int64);
 			break;
 		default:
-			QUICK_LOG_ERR_DATATYPE();
+			QUICK_LOG_ERR_DATATYPE(datatype);
 			break;
 	}
 }
@@ -145,7 +147,7 @@ void naive_interpolation_nearestneighbor(void *inp,
 			INTERPOLATION_NN_SUB_PROCESS(int64);
 			break;
 		default:
-			QUICK_LOG_ERR_DATATYPE();
+			QUICK_LOG_ERR_DATATYPE(datatype);
 			break;
 	}
 }

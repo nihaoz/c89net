@@ -27,6 +27,7 @@ feature_map_t *activation_softmax(feature_map_t *inp)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 	_activation_softmax_handler(inp->data->mem, len);
 	return inp;
@@ -41,6 +42,7 @@ feature_map_t *activation_relu(feature_map_t *inp)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 	_activation_relu_handler(inp->data->mem, len);
 	return inp;
@@ -55,6 +57,7 @@ feature_map_t *activation_relu6(feature_map_t *inp)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 	_activation_relu6_handler(inp->data->mem, len);
 	return inp;
@@ -70,6 +73,7 @@ feature_map_t *activation_leaky_relu(feature_map_t *inp, void *alpha)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(inp->datatype);
+			return NULL;
 	}
 	_activation_leaky_relu_handler(inp->data->mem, alpha, len);
 	return inp;

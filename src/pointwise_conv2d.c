@@ -34,8 +34,10 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 #endif
 	if (!oup) {
 		oup = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!oup)
+		if (!oup) {
+			QUICK_LOG_ERR_MEM_ALLOC(oup);
 			return NULL;
+		}
 		oup->datatype = inp->datatype;
 		oup->xsize    = inp->xsize;
 		oup->ysize    = inp->ysize;
@@ -45,6 +47,7 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 		oup->data     = list_new_static(oup->zsize, o_ch_mem_size);
 		if (!oup->data) {
 			free(oup);
+			QUICK_LOG_ERR_MEM_ALLOC(oup->data);
 			return NULL;
 		}
 		list_set_name(oup->data, name);
@@ -68,6 +71,7 @@ feature_map_t *pointwise_conv2d(feature_map_t *inp, cnn_para_t *kernel,
 #ifndef ENABLE_MEMMGR
 		free_feature_map(oup);
 #endif
+		QUICK_LOG_ERR_MEM_ALLOC(omp_out_buf);
 		return NULL;
 	}
  /* reset memory each time when reuse exist feature map */

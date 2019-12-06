@@ -78,6 +78,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp,
 			if (p)
 				free_feature_map(inp_pad);
 #endif
+			QUICK_LOG_ERR_MEM_ALLOC(oup);
 			return NULL;
 		}
 		oup->datatype = inp->datatype;
@@ -95,6 +96,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp,
 			if (p)
 				free_feature_map(inp_pad);
 #endif
+			QUICK_LOG_ERR_MEM_ALLOC(oup->data);
 			return NULL;
 		}
 		list_set_name(oup->data, name);
@@ -121,6 +123,7 @@ feature_map_t *spatial_conv2d(feature_map_t *inp,
 		if (p)
 			free_feature_map(inp_pad);
 #endif
+		QUICK_LOG_ERR_MEM_ALLOC(omp_out_buf);
 		return NULL;
 	}
  /* reset memory each time when reuse exist feature map */

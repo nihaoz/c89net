@@ -16,8 +16,10 @@ static byte *_make_rec(char *name, void *sp, int *reclen)
 	byte *rec = NULL;
 	*reclen = (strlen(name) + 1) + sizeof(void*);
 	rec = (byte*)malloc(*reclen);
-	if (!rec)
+	if (!rec) {
+		QUICK_LOG_ERR_MEM_ALLOC(rec);
 		return NULL;
+	}
 	strcpy((char*)rec, name);
 	memcpy(rec + (strlen(name) + 1), &sp, sizeof(void*));
 	return rec;

@@ -41,6 +41,7 @@ feature_map_t *max_pool2_2(feature_map_t *l, const char *name)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(l->datatype);
+			return NULL;
 	}
 #ifdef ENABLE_MEMMGR
 	pool = (feature_map_t*)
@@ -48,8 +49,10 @@ feature_map_t *max_pool2_2(feature_map_t *l, const char *name)
 #endif
 	if (!pool) {
 		pool = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!pool)
+		if (!pool) {
+			QUICK_LOG_ERR_MEM_ALLOC(pool);
 			return NULL;
+		}
 		pool->datatype = l->datatype;
 		pool->xsize = l->xsize >> 1;
 		pool->ysize = l->ysize >> 1;
@@ -59,6 +62,7 @@ feature_map_t *max_pool2_2(feature_map_t *l, const char *name)
 				sizeof_datatype(pool->datatype));
 		if (!pool->data) {
 			free(pool);
+			QUICK_LOG_ERR_MEM_ALLOC(pool->data);
 			return NULL;
 		}
 		list_set_name(pool->data, name);
@@ -89,8 +93,10 @@ feature_map_t *max_pool(feature_map_t *l, int s, const char *name)
 #endif
 	if (!pool) {
 		pool = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!pool)
+		if (!pool) {
+			QUICK_LOG_ERR_MEM_ALLOC(pool);
 			return NULL;
+		}
 		pool->datatype = l->datatype;
 		pool->xsize = l->xsize / s;
 		pool->ysize = l->ysize / s;
@@ -100,6 +106,7 @@ feature_map_t *max_pool(feature_map_t *l, int s, const char *name)
 				sizeof_datatype(pool->datatype));
 		if (!pool->data) {
 			free(pool);
+			QUICK_LOG_ERR_MEM_ALLOC(pool->data);
 			return NULL;
 		}
 		list_set_name(pool->data, name);
@@ -131,8 +138,10 @@ feature_map_t *global_avg_pool(feature_map_t *l, const char *name)
 #endif
 	if (!pool) {
 		pool = (feature_map_t*)malloc(sizeof(feature_map_t));
-		if (!pool)
+		if (!pool) {
+			QUICK_LOG_ERR_MEM_ALLOC(pool);
 			return NULL;
+		}
 		pool->datatype = l->datatype;
 		pool->xsize    = 1;
 		pool->ysize    = 1;
@@ -141,6 +150,7 @@ feature_map_t *global_avg_pool(feature_map_t *l, const char *name)
 			sizeof_datatype(pool->datatype));
 		if (!pool->data) {
 			free(pool);
+			QUICK_LOG_ERR_MEM_ALLOC(pool->data);
 			return NULL;
 		}
 		list_set_name(pool->data, name);

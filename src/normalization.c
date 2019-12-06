@@ -44,6 +44,7 @@ feature_map_t *batch_norm(feature_map_t *l, cnn_para_t *arg)
 			break;
 		default:
 			QUICK_LOG_ERR_DATATYPE(l->datatype);
+			return NULL;
 	}
 	ch_size     = l->xsize * l->ysize;
 	ch_mem_size = ch_size * sizeof_datatype(l->datatype);
