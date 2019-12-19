@@ -1,6 +1,6 @@
 # c89net
 
-Simple deep neural network using C89, feed-forward only(for now)
+Simple deep neural networks implemented with C89, feed-forward only(for now)
 
 使用 ANSI C 实现的 DNN 网络可以在丰富的系统上部署和实验，目前仅支持前馈。在 Linux / MacOS 操作系统上使用 `make` 编译(Windows 系统建议使用 mingw)。如你所知，使用 c89 几乎可以让它兼容在所有 32 位操作系统上(亦可以不依赖操作系统，独立运行)。我们提供了一些简单的网络以及训练好的参数用于功能测试。
 

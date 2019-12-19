@@ -42,6 +42,7 @@
 #include <stdio.h>
 
 int memmgr_init(void);
+
 int memmgr_clear(void);
 
 int memmgr_add_record(int type, void *sp);
